@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import ReactMarkdown from 'react-markdown'
 import SettingsModal from '@/components/SettingsModal';
-import { Loader2, PlusCircle, ChevronLeft, ChevronRight } from "lucide-react"
+import { Loader2, PlusCircle, ChevronLeft, ChevronRight, Search } from "lucide-react"
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { toast } from "@/components/ui/use-toast"
@@ -22,8 +22,13 @@ const ChatPage = () => {
   const [input, setInput] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
   const scrollAreaRef = useRef(null);
   const navigate = useNavigate();
+
+  const filteredConversations = conversations.filter(conversation =>
+    conversation.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   useEffect(() => {
     if (!apiKey) {
@@ -192,8 +197,18 @@ const ChatPage = () => {
             <Button onClick={startNewConversation} className="w-full mb-4">
               <PlusCircle className="mr-2 h-4 w-4" /> New Chat
             </Button>
-            <ScrollArea className="h-[calc(100vh-120px)]">
-              {conversations.map((conversation, index) => (
+            <div className="relative mb-4">
+              <Input
+                type="text"
+                placeholder="Search conversations..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            </div>
+            <ScrollArea className="h-[calc(100vh-180px)]">
+              {filteredConversations.map((conversation, index) => (
                 <Button
                   key={conversation.id}
                   onClick={() => switchConversation(index)}
