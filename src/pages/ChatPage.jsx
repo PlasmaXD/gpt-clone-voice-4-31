@@ -70,7 +70,11 @@ const ChatPage = () => {
     }
 
     const userMessage = { role: 'user', content: input };
-    setMessages((prev) => [...prev, userMessage]);
+    setConversations((prevConversations) => {
+      const updatedConversations = [...prevConversations];
+      updatedConversations[currentConversationIndex].messages.push(userMessage);
+      return updatedConversations;
+    });
     setInput('');
     setIsStreaming(true);
 
@@ -83,7 +87,11 @@ const ChatPage = () => {
         },
         body: JSON.stringify({
           model: 'gpt-4o-mini',
-          messages: [{ role: 'system', content: systemMessage }, ...messages, userMessage],
+          messages: [
+            { role: 'system', content: systemMessage },
+            ...conversations[currentConversationIndex].messages,
+            userMessage
+          ],
           stream: true
         })
       });
@@ -92,7 +100,11 @@ const ChatPage = () => {
       const decoder = new TextDecoder();
       let assistantMessage = { role: 'assistant', content: '' };
 
-      setMessages((prev) => [...prev, assistantMessage]);
+      setConversations((prevConversations) => {
+        const updatedConversations = [...prevConversations];
+        updatedConversations[currentConversationIndex].messages.push(assistantMessage);
+        return updatedConversations;
+      });
 
       while (true) {
         const { done, value } = await reader.read();
@@ -111,16 +123,22 @@ const ChatPage = () => {
           const { content } = delta;
           if (content) {
             assistantMessage.content += content;
-            setMessages((prev) => [
-              ...prev.slice(0, -1),
-              { ...assistantMessage }
-            ]);
+            setConversations((prevConversations) => {
+              const updatedConversations = [...prevConversations];
+              const currentMessages = updatedConversations[currentConversationIndex].messages;
+              currentMessages[currentMessages.length - 1] = { ...assistantMessage };
+              return updatedConversations;
+            });
           }
         }
       }
     } catch (error) {
       console.error('Error:', error);
-      setMessages((prev) => [...prev, { role: 'assistant', content: 'Error: Unable to fetch response' }]);
+      setConversations((prevConversations) => {
+        const updatedConversations = [...prevConversations];
+        updatedConversations[currentConversationIndex].messages.push({ role: 'assistant', content: 'Error: Unable to fetch response' });
+        return updatedConversations;
+      });
     } finally {
       setIsStreaming(false);
     }
