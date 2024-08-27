@@ -4,18 +4,24 @@ import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import ReactMarkdown from 'react-markdown'
 import SettingsModal from '@/components/SettingsModal';
-import { Loader2 } from "lucide-react"
+import { Loader2, PlusCircle, ChevronLeft, ChevronRight } from "lucide-react"
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { toast } from "@/components/ui/use-toast"
 import { useNavigate } from 'react-router-dom';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 
 const ChatPage = () => {
   const [apiKey, setApiKey] = useState(() => localStorage.getItem('openai_api_key') || '');
   const [systemMessage, setSystemMessage] = useState(() => localStorage.getItem('system_message') || 'You are a helpful assistant.');
-  const [messages, setMessages] = useState([]);
+  const [conversations, setConversations] = useState(() => {
+    const savedConversations = localStorage.getItem('conversations');
+    return savedConversations ? JSON.parse(savedConversations) : [{ id: Date.now(), messages: [] }];
+  });
+  const [currentConversationIndex, setCurrentConversationIndex] = useState(0);
   const [input, setInput] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const scrollAreaRef = useRef(null);
   const navigate = useNavigate();
 
@@ -29,12 +35,26 @@ const ChatPage = () => {
     if (scrollAreaRef.current) {
       scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
     }
-  }, [messages]);
+  }, [conversations]);
 
   useEffect(() => {
     localStorage.setItem('openai_api_key', apiKey);
     localStorage.setItem('system_message', systemMessage);
-  }, [apiKey, systemMessage]);
+    localStorage.setItem('conversations', JSON.stringify(conversations));
+  }, [apiKey, systemMessage, conversations]);
+
+  const startNewConversation = () => {
+    setConversations([...conversations, { id: Date.now(), messages: [] }]);
+    setCurrentConversationIndex(conversations.length);
+  };
+
+  const switchConversation = (index) => {
+    setCurrentConversationIndex(index);
+  };
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -107,8 +127,32 @@ const ChatPage = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-chatbg">
-      <div className="flex-grow overflow-hidden">
+    <div className="flex h-screen bg-chatbg">
+      <Collapsible open={isSidebarOpen} onOpenChange={setIsSidebarOpen} className="bg-white border-r">
+        <CollapsibleContent className="w-64 p-4">
+          <Button onClick={startNewConversation} className="w-full mb-4">
+            <PlusCircle className="mr-2 h-4 w-4" /> New Chat
+          </Button>
+          <ScrollArea className="h-[calc(100vh-120px)]">
+            {conversations.map((conversation, index) => (
+              <Button
+                key={conversation.id}
+                onClick={() => switchConversation(index)}
+                variant={currentConversationIndex === index ? "secondary" : "ghost"}
+                className="w-full justify-start mb-2"
+              >
+                Chat {index + 1}
+              </Button>
+            ))}
+          </ScrollArea>
+        </CollapsibleContent>
+        <CollapsibleTrigger asChild>
+          <Button variant="ghost" size="icon" className="absolute top-4 left-64">
+            {isSidebarOpen ? <ChevronLeft /> : <ChevronRight />}
+          </Button>
+        </CollapsibleTrigger>
+      </Collapsible>
+      <div className="flex flex-col flex-grow overflow-hidden">
         <div className="flex justify-end p-4">
           <SettingsModal
             apiKey={apiKey}
@@ -117,8 +161,8 @@ const ChatPage = () => {
             setSystemMessage={setSystemMessage}
           />
         </div>
-        <ScrollArea className="h-[calc(100%-64px)] p-4" ref={scrollAreaRef}>
-          {messages.map((message, index) => (
+        <ScrollArea className="flex-grow p-4" ref={scrollAreaRef}>
+          {conversations[currentConversationIndex].messages.map((message, index) => (
             <div key={index} className={`mb-4 ${message.role === 'user' ? 'text-right' : 'text-left'}`}>
               <div className={`inline-block p-3 rounded-lg shadow-md ${
                 message.role === 'user' ? 'bg-usermsg text-white' : 'bg-assistantmsg text-gray-800'
@@ -147,28 +191,28 @@ const ChatPage = () => {
                 >
                   {message.content}
                 </ReactMarkdown>
-                {isStreaming && index === messages.length - 1 && message.content === '' && (
+                {isStreaming && index === conversations[currentConversationIndex].messages.length - 1 && message.content === '' && (
                   <Loader2 className="h-4 w-4 animate-spin inline-block ml-2" />
                 )}
               </div>
             </div>
           ))}
         </ScrollArea>
-      </div>
-      <div className="p-4 bg-white border-t shadow-md">
-        <form onSubmit={handleSubmit} className="flex gap-2">
-          <Input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Type your message..."
-            className="flex-grow"
-            disabled={isStreaming}
-          />
-          <Button type="submit" disabled={isStreaming} className="bg-usermsg hover:bg-blue-600">
-            {isStreaming ? 'Sending...' : 'Send'}
-          </Button>
-        </form>
+        <div className="p-4 bg-white border-t shadow-md">
+          <form onSubmit={handleSubmit} className="flex gap-2">
+            <Input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Type your message..."
+              className="flex-grow"
+              disabled={isStreaming}
+            />
+            <Button type="submit" disabled={isStreaming} className="bg-usermsg hover:bg-blue-600">
+              {isStreaming ? 'Sending...' : 'Send'}
+            </Button>
+          </form>
+        </div>
       </div>
     </div>
   );
