@@ -16,7 +16,7 @@ const ChatPage = () => {
   const [systemMessage, setSystemMessage] = useState(() => localStorage.getItem('system_message') || 'You are a helpful assistant.');
   const [conversations, setConversations] = useState(() => {
     const savedConversations = localStorage.getItem('conversations');
-    return savedConversations ? JSON.parse(savedConversations) : [{ id: Date.now(), messages: [] }];
+    return savedConversations ? JSON.parse(savedConversations) : [{ id: Date.now(), title: 'New Chat', messages: [] }];
   });
   const [currentConversationIndex, setCurrentConversationIndex] = useState(0);
   const [input, setInput] = useState('');
@@ -43,8 +43,34 @@ const ChatPage = () => {
     localStorage.setItem('conversations', JSON.stringify(conversations));
   }, [apiKey, systemMessage, conversations]);
 
+  const generateTitle = async (messages) => {
+    try {
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini',
+          messages: [
+            { role: 'system', content: 'Generate a short, concise title for this conversation.' },
+            ...messages.slice(-3)
+          ],
+          max_tokens: 15
+        })
+      });
+
+      const data = await response.json();
+      return data.choices[0].message.content.trim();
+    } catch (error) {
+      console.error('Error generating title:', error);
+      return 'New Chat';
+    }
+  };
+
   const startNewConversation = () => {
-    setConversations([...conversations, { id: Date.now(), messages: [] }]);
+    setConversations([...conversations, { id: Date.now(), title: 'New Chat', messages: [] }]);
     setCurrentConversationIndex(conversations.length);
   };
 
@@ -132,6 +158,16 @@ const ChatPage = () => {
           }
         }
       }
+
+      // Generate title after a few messages
+      if (conversations[currentConversationIndex].messages.length >= 3) {
+        const newTitle = await generateTitle(conversations[currentConversationIndex].messages);
+        setConversations((prevConversations) => {
+          const updatedConversations = [...prevConversations];
+          updatedConversations[currentConversationIndex].title = newTitle;
+          return updatedConversations;
+        });
+      }
     } catch (error) {
       console.error('Error:', error);
       setConversations((prevConversations) => {
@@ -158,9 +194,9 @@ const ChatPage = () => {
                   key={conversation.id}
                   onClick={() => switchConversation(index)}
                   variant={currentConversationIndex === index ? "secondary" : "ghost"}
-                  className="w-full justify-start mb-2"
+                  className="w-full justify-start mb-2 truncate"
                 >
-                  Chat {index + 1}
+                  {conversation.title}
                 </Button>
               ))}
             </ScrollArea>
