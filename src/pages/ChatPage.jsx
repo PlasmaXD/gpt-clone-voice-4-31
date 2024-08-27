@@ -146,30 +146,36 @@ const ChatPage = () => {
 
   return (
     <div className="flex h-screen bg-chatbg">
-      <Collapsible open={isSidebarOpen} onOpenChange={setIsSidebarOpen} className="bg-white border-r">
-        <CollapsibleContent className="w-64 p-4">
-          <Button onClick={startNewConversation} className="w-full mb-4">
-            <PlusCircle className="mr-2 h-4 w-4" /> New Chat
-          </Button>
-          <ScrollArea className="h-[calc(100vh-120px)]">
-            {conversations.map((conversation, index) => (
-              <Button
-                key={conversation.id}
-                onClick={() => switchConversation(index)}
-                variant={currentConversationIndex === index ? "secondary" : "ghost"}
-                className="w-full justify-start mb-2"
-              >
-                Chat {index + 1}
-              </Button>
-            ))}
-          </ScrollArea>
-        </CollapsibleContent>
-        <CollapsibleTrigger asChild>
-          <Button variant="ghost" size="icon" className="absolute top-4 left-64">
-            {isSidebarOpen ? <ChevronLeft /> : <ChevronRight />}
-          </Button>
-        </CollapsibleTrigger>
-      </Collapsible>
+      <div className="relative">
+        <Collapsible open={isSidebarOpen} onOpenChange={setIsSidebarOpen} className="bg-white border-r">
+          <CollapsibleContent className="w-64 p-4">
+            <Button onClick={startNewConversation} className="w-full mb-4">
+              <PlusCircle className="mr-2 h-4 w-4" /> New Chat
+            </Button>
+            <ScrollArea className="h-[calc(100vh-120px)]">
+              {conversations.map((conversation, index) => (
+                <Button
+                  key={conversation.id}
+                  onClick={() => switchConversation(index)}
+                  variant={currentConversationIndex === index ? "secondary" : "ghost"}
+                  className="w-full justify-start mb-2"
+                >
+                  Chat {index + 1}
+                </Button>
+              ))}
+            </ScrollArea>
+          </CollapsibleContent>
+          <CollapsibleTrigger asChild>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className={`absolute top-4 ${isSidebarOpen ? 'left-64' : 'left-0'} transition-all duration-300`}
+            >
+              {isSidebarOpen ? <ChevronLeft /> : <ChevronRight />}
+            </Button>
+          </CollapsibleTrigger>
+        </Collapsible>
+      </div>
       <div className="flex flex-col flex-grow overflow-hidden">
         <div className="flex justify-end p-4">
           <SettingsModal
