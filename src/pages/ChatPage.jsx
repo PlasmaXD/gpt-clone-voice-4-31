@@ -48,6 +48,8 @@ const ChatPage = () => {
       const decoder = new TextDecoder();
       let assistantMessage = { role: 'assistant', content: '' };
 
+      setMessages((prev) => [...prev, assistantMessage]);
+
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
