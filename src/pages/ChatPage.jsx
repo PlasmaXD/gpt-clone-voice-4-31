@@ -8,6 +8,7 @@ import { Loader2 } from "lucide-react"
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { toast } from "@/components/ui/use-toast"
+import { useNavigate } from 'react-router-dom';
 
 const ChatPage = () => {
   const [apiKey, setApiKey] = useState(() => localStorage.getItem('openai_api_key') || '');
@@ -15,6 +16,13 @@ const ChatPage = () => {
   const [input, setInput] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
   const scrollAreaRef = useRef(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!apiKey) {
+      navigate('/');
+    }
+  }, [apiKey, navigate]);
 
   useEffect(() => {
     if (scrollAreaRef.current) {
