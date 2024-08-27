@@ -95,6 +95,13 @@ const ChatPage = () => {
       />
       <Card className="mb-4">
         <ScrollArea className="h-[400px] p-4" ref={scrollAreaRef}>
+          {isStreaming && (
+            <div className="text-left mb-2">
+              <span className="inline-block p-2 rounded-lg bg-gray-200">
+                Thinking...
+              </span>
+            </div>
+          )}
           {messages.map((message, index) => (
             <div key={index} className={`mb-2 ${message.role === 'user' ? 'text-right' : 'text-left'}`}>
               <div className={`inline-block p-2 rounded-lg ${message.role === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}>
@@ -104,13 +111,6 @@ const ChatPage = () => {
               </div>
             </div>
           ))}
-          {isStreaming && (
-            <div className="text-left">
-              <span className="inline-block p-2 rounded-lg bg-gray-200">
-                Thinking...
-              </span>
-            </div>
-          )}
         </ScrollArea>
       </Card>
       <form onSubmit={handleSubmit} className="flex gap-2">
