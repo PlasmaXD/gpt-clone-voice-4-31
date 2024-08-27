@@ -25,11 +25,11 @@ const SettingsModal = ({ apiKey, setApiKey }) => {
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-center gap-4">
-            <label htmlFor="apiKey" className="text-right">
-              API Key
+            <label htmlFor="openaiApiKey" className="text-right">
+              OpenAI API Key
             </label>
             <Input
-              id="apiKey"
+              id="openaiApiKey"
               type="password"
               value={apiKey}
               onChange={(e) => setApiKey(e.target.value)}
