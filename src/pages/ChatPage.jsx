@@ -168,9 +168,9 @@ const ChatPage = () => {
         }
       }
 
-      // Generate title after a few messages
-      if (conversations[currentConversationIndex].messages.length >= 3) {
-        const newTitle = await generateTitle(conversations[currentConversationIndex].messages);
+      // Generate title after the first message exchange
+      if (conversations[currentConversationIndex].title === 'New Chat') {
+        const newTitle = await generateTitle([userMessage, assistantMessage]);
         setConversations((prevConversations) => {
           const updatedConversations = [...prevConversations];
           updatedConversations[currentConversationIndex].title = newTitle;
