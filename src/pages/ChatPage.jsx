@@ -7,6 +7,7 @@ import SettingsModal from '@/components/SettingsModal';
 import { Loader2 } from "lucide-react"
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { toast } from "@/components/ui/use-toast"
 
 const ChatPage = () => {
   const [apiKey, setApiKey] = useState(() => localStorage.getItem('openai_api_key') || '');
@@ -27,7 +28,16 @@ const ChatPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!input.trim() || !apiKey) return;
+    if (!input.trim()) return;
+
+    if (!apiKey) {
+      toast({
+        title: "API Key Missing",
+        description: "Please set your OpenAI API key in the settings.",
+        variant: "destructive",
+      });
+      return;
+    }
 
     const userMessage = { role: 'user', content: input };
     setMessages((prev) => [...prev, userMessage]);
