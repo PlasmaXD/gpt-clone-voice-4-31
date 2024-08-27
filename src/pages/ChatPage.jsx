@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import ReactMarkdown from 'react-markdown'
+import SettingsModal from '@/components/SettingsModal';
 
 const ChatPage = () => {
   const [apiKey, setApiKey] = useState(() => localStorage.getItem('openai_api_key') || '');
@@ -86,7 +87,10 @@ const ChatPage = () => {
   return (
     <div className="flex flex-col h-screen">
       <div className="flex-grow overflow-hidden">
-        <ScrollArea className="h-full p-4" ref={scrollAreaRef}>
+        <div className="flex justify-end p-2">
+          <SettingsModal apiKey={apiKey} setApiKey={setApiKey} />
+        </div>
+        <ScrollArea className="h-[calc(100%-48px)] p-4" ref={scrollAreaRef}>
           {messages.map((message, index) => (
             <div key={index} className={`mb-2 ${message.role === 'user' ? 'text-right' : 'text-left'}`}>
               <div className={`inline-block p-2 rounded-lg ${message.role === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}>
@@ -106,13 +110,6 @@ const ChatPage = () => {
         </ScrollArea>
       </div>
       <div className="p-4 bg-white border-t">
-        <Input
-          type="password"
-          placeholder="Enter your OpenAI API Key"
-          value={apiKey}
-          onChange={(e) => setApiKey(e.target.value)}
-          className="mb-4"
-        />
         <form onSubmit={handleSubmit} className="flex gap-2">
           <Input
             type="text"
