@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Card } from "@/components/ui/card"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import ReactMarkdown from 'react-markdown'
 import SettingsModal from '@/components/SettingsModal';
@@ -98,7 +97,7 @@ const ChatPage = () => {
                 <ReactMarkdown className="prose max-w-none dark:prose-invert">
                   {message.content}
                 </ReactMarkdown>
-                {isStreaming && index === messages.length - 1 && (
+                {isStreaming && index === messages.length - 1 && message.content === '' && (
                   <Loader2 className="h-4 w-4 animate-spin inline-block ml-2" />
                 )}
               </div>
