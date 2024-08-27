@@ -27,7 +27,7 @@ const ChatPage = () => {
   const navigate = useNavigate();
 
   const filteredConversations = conversations.filter(conversation =>
-    conversation.title.toLowerCase().includes(searchQuery.toLowerCase())
+    conversation.title && conversation.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   useEffect(() => {
