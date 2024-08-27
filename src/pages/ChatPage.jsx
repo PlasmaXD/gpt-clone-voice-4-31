@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
@@ -8,6 +8,14 @@ const ChatPage = () => {
   const [apiKey, setApiKey] = useState('');
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
+  const [isStreaming, setIsStreaming] = useState(false);
+  const scrollAreaRef = useRef(null);
+
+  useEffect(() => {
+    if (scrollAreaRef.current) {
+      scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
+    }
+  }, [messages]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -16,6 +24,7 @@ const ChatPage = () => {
     const userMessage = { role: 'user', content: input };
     setMessages((prev) => [...prev, userMessage]);
     setInput('');
+    setIsStreaming(true);
 
     try {
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -26,17 +35,44 @@ const ChatPage = () => {
         },
         body: JSON.stringify({
           model: 'gpt-4o-mini',
-          messages: [...messages, userMessage]
+          messages: [...messages, userMessage],
+          stream: true
         })
       });
 
-      const data = await response.json();
-      if (data.choices && data.choices[0]) {
-        setMessages((prev) => [...prev, data.choices[0].message]);
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let assistantMessage = { role: 'assistant', content: '' };
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value);
+        const lines = chunk.split('\n');
+        const parsedLines = lines
+          .map((line) => line.replace(/^data: /, '').trim())
+          .filter((line) => line !== '' && line !== '[DONE]')
+          .map((line) => JSON.parse(line));
+
+        for (const parsedLine of parsedLines) {
+          const { choices } = parsedLine;
+          const { delta } = choices[0];
+          const { content } = delta;
+          if (content) {
+            assistantMessage.content += content;
+            setMessages((prev) => [
+              ...prev.slice(0, -1),
+              { ...assistantMessage }
+            ]);
+          }
+        }
       }
     } catch (error) {
       console.error('Error:', error);
       setMessages((prev) => [...prev, { role: 'system', content: 'Error: Unable to fetch response' }]);
+    } finally {
+      setIsStreaming(false);
     }
   };
 
@@ -51,7 +87,7 @@ const ChatPage = () => {
         className="mb-4"
       />
       <Card className="mb-4">
-        <ScrollArea className="h-[400px] p-4">
+        <ScrollArea className="h-[400px] p-4" ref={scrollAreaRef}>
           {messages.map((message, index) => (
             <div key={index} className={`mb-2 ${message.role === 'user' ? 'text-right' : 'text-left'}`}>
               <span className={`inline-block p-2 rounded-lg ${message.role === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}>
@@ -59,6 +95,13 @@ const ChatPage = () => {
               </span>
             </div>
           ))}
+          {isStreaming && (
+            <div className="text-left">
+              <span className="inline-block p-2 rounded-lg bg-gray-200">
+                Thinking...
+              </span>
+            </div>
+          )}
         </ScrollArea>
       </Card>
       <form onSubmit={handleSubmit} className="flex gap-2">
@@ -68,8 +111,11 @@ const ChatPage = () => {
           onChange={(e) => setInput(e.target.value)}
           placeholder="Type your message..."
           className="flex-grow"
+          disabled={isStreaming}
         />
-        <Button type="submit">Send</Button>
+        <Button type="submit" disabled={isStreaming}>
+          {isStreaming ? 'Sending...' : 'Send'}
+        </Button>
       </form>
     </div>
   );
