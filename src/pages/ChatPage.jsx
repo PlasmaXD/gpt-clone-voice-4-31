@@ -87,15 +87,17 @@ const ChatPage = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex flex-col h-screen bg-chatbg">
       <div className="flex-grow overflow-hidden">
-        <div className="flex justify-end p-2">
+        <div className="flex justify-end p-4">
           <SettingsModal apiKey={apiKey} setApiKey={setApiKey} />
         </div>
-        <ScrollArea className="h-[calc(100%-48px)] p-4" ref={scrollAreaRef}>
+        <ScrollArea className="h-[calc(100%-64px)] p-4" ref={scrollAreaRef}>
           {messages.map((message, index) => (
-            <div key={index} className={`mb-2 ${message.role === 'user' ? 'text-right' : 'text-left'}`}>
-              <div className={`inline-block p-2 rounded-lg ${message.role === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}>
+            <div key={index} className={`mb-4 ${message.role === 'user' ? 'text-right' : 'text-left'}`}>
+              <div className={`inline-block p-3 rounded-lg shadow-md ${
+                message.role === 'user' ? 'bg-usermsg text-white' : 'bg-assistantmsg text-gray-800'
+              }`}>
                 <ReactMarkdown
                   className="prose max-w-none dark:prose-invert"
                   components={{
@@ -128,7 +130,7 @@ const ChatPage = () => {
           ))}
         </ScrollArea>
       </div>
-      <div className="p-4 bg-white border-t">
+      <div className="p-4 bg-white border-t shadow-md">
         <form onSubmit={handleSubmit} className="flex gap-2">
           <Input
             type="text"
@@ -138,7 +140,7 @@ const ChatPage = () => {
             className="flex-grow"
             disabled={isStreaming}
           />
-          <Button type="submit" disabled={isStreaming}>
+          <Button type="submit" disabled={isStreaming} className="bg-usermsg hover:bg-blue-600">
             {isStreaming ? 'Sending...' : 'Send'}
           </Button>
         </form>
