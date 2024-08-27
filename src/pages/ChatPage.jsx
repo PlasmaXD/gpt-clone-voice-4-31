@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card"
 import { ScrollArea } from "@/components/ui/scroll-area"
 
 const ChatPage = () => {
-  const [apiKey, setApiKey] = useState('');
+  const [apiKey, setApiKey] = useState(() => localStorage.getItem('openai_api_key') || '');
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
@@ -16,6 +16,10 @@ const ChatPage = () => {
       scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
     }
   }, [messages]);
+
+  useEffect(() => {
+    localStorage.setItem('openai_api_key', apiKey);
+  }, [apiKey]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
