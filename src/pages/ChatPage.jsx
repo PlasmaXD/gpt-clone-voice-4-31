@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import ReactMarkdown from 'react-markdown'
 import SettingsModal from '@/components/SettingsModal';
+import { Loader2 } from "lucide-react"
 
 const ChatPage = () => {
   const [apiKey, setApiKey] = useState(() => localStorage.getItem('openai_api_key') || '');
@@ -78,7 +79,7 @@ const ChatPage = () => {
       }
     } catch (error) {
       console.error('Error:', error);
-      setMessages((prev) => [...prev, { role: 'system', content: 'Error: Unable to fetch response' }]);
+      setMessages((prev) => [...prev, { role: 'assistant', content: 'Error: Unable to fetch response' }]);
     } finally {
       setIsStreaming(false);
     }
@@ -97,16 +98,12 @@ const ChatPage = () => {
                 <ReactMarkdown className="prose max-w-none dark:prose-invert">
                   {message.content}
                 </ReactMarkdown>
+                {isStreaming && index === messages.length - 1 && (
+                  <Loader2 className="h-4 w-4 animate-spin inline-block ml-2" />
+                )}
               </div>
             </div>
           ))}
-          {isStreaming && (
-            <div className="text-left mb-2">
-              <span className="inline-block p-2 rounded-lg bg-gray-200">
-                Thinking...
-              </span>
-            </div>
-          )}
         </ScrollArea>
       </div>
       <div className="p-4 bg-white border-t">
