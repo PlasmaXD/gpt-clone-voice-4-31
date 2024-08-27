@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import ReactMarkdown from 'react-markdown'
 
 const ChatPage = () => {
   const [apiKey, setApiKey] = useState(() => localStorage.getItem('openai_api_key') || '');
@@ -96,9 +97,11 @@ const ChatPage = () => {
         <ScrollArea className="h-[400px] p-4" ref={scrollAreaRef}>
           {messages.map((message, index) => (
             <div key={index} className={`mb-2 ${message.role === 'user' ? 'text-right' : 'text-left'}`}>
-              <span className={`inline-block p-2 rounded-lg ${message.role === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}>
-                {message.content}
-              </span>
+              <div className={`inline-block p-2 rounded-lg ${message.role === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}>
+                <ReactMarkdown className="prose max-w-none dark:prose-invert">
+                  {message.content}
+                </ReactMarkdown>
+              </div>
             </div>
           ))}
           {isStreaming && (
