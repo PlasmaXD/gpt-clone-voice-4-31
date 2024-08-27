@@ -45,6 +45,10 @@ const ChatPage = () => {
 
   const generateTitle = async (messages) => {
     try {
+      const concatenatedMessages = messages
+        .map(msg => `${msg.role}: ${msg.content}`)
+        .join('\n');
+
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -54,8 +58,8 @@ const ChatPage = () => {
         body: JSON.stringify({
           model: 'gpt-4o-mini',
           messages: [
-            { role: 'system', content: 'Generate a short, concise title for this conversation.' },
-            ...messages.slice(-3)
+            { role: 'system', content: 'Generate a short, concise title (3-5 words) for this conversation based on its main topic.' },
+            { role: 'user', content: concatenatedMessages }
           ],
           max_tokens: 15
         })
