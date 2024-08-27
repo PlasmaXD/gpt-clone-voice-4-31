@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 import {
   Dialog,
   DialogContent,
@@ -10,7 +11,7 @@ import {
 } from "@/components/ui/dialog"
 import { Settings } from "lucide-react"
 
-const SettingsModal = ({ apiKey, setApiKey }) => {
+const SettingsModal = ({ apiKey, setApiKey, systemMessage, setSystemMessage }) => {
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -34,6 +35,18 @@ const SettingsModal = ({ apiKey, setApiKey }) => {
               value={apiKey}
               onChange={(e) => setApiKey(e.target.value)}
               className="col-span-3"
+            />
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <label htmlFor="systemMessage" className="text-right">
+              System Message
+            </label>
+            <Textarea
+              id="systemMessage"
+              value={systemMessage}
+              onChange={(e) => setSystemMessage(e.target.value)}
+              className="col-span-3"
+              rows={4}
             />
           </div>
         </div>

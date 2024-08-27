@@ -12,6 +12,7 @@ import { useNavigate } from 'react-router-dom';
 
 const ChatPage = () => {
   const [apiKey, setApiKey] = useState(() => localStorage.getItem('openai_api_key') || '');
+  const [systemMessage, setSystemMessage] = useState(() => localStorage.getItem('system_message') || 'You are a helpful assistant.');
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
@@ -32,7 +33,8 @@ const ChatPage = () => {
 
   useEffect(() => {
     localStorage.setItem('openai_api_key', apiKey);
-  }, [apiKey]);
+    localStorage.setItem('system_message', systemMessage);
+  }, [apiKey, systemMessage]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -61,7 +63,7 @@ const ChatPage = () => {
         },
         body: JSON.stringify({
           model: 'gpt-4o-mini',
-          messages: [...messages, userMessage],
+          messages: [{ role: 'system', content: systemMessage }, ...messages, userMessage],
           stream: true
         })
       });
@@ -108,7 +110,12 @@ const ChatPage = () => {
     <div className="flex flex-col h-screen bg-chatbg">
       <div className="flex-grow overflow-hidden">
         <div className="flex justify-end p-4">
-          <SettingsModal apiKey={apiKey} setApiKey={setApiKey} />
+          <SettingsModal
+            apiKey={apiKey}
+            setApiKey={setApiKey}
+            systemMessage={systemMessage}
+            setSystemMessage={setSystemMessage}
+          />
         </div>
         <ScrollArea className="h-[calc(100%-64px)] p-4" ref={scrollAreaRef}>
           {messages.map((message, index) => (
