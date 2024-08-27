@@ -84,24 +84,9 @@ const ChatPage = () => {
   };
 
   return (
-    <div className="container mx-auto p-4 max-w-3xl">
-      <h1 className="text-2xl font-bold mb-4">ChatGPT Clone</h1>
-      <Input
-        type="password"
-        placeholder="Enter your OpenAI API Key"
-        value={apiKey}
-        onChange={(e) => setApiKey(e.target.value)}
-        className="mb-4"
-      />
-      <Card className="mb-4">
-        <ScrollArea className="h-[400px] p-4" ref={scrollAreaRef}>
-          {isStreaming && (
-            <div className="text-left mb-2">
-              <span className="inline-block p-2 rounded-lg bg-gray-200">
-                Thinking...
-              </span>
-            </div>
-          )}
+    <div className="flex flex-col h-screen">
+      <div className="flex-grow overflow-hidden">
+        <ScrollArea className="h-full p-4" ref={scrollAreaRef}>
           {messages.map((message, index) => (
             <div key={index} className={`mb-2 ${message.role === 'user' ? 'text-right' : 'text-left'}`}>
               <div className={`inline-block p-2 rounded-lg ${message.role === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}>
@@ -111,21 +96,37 @@ const ChatPage = () => {
               </div>
             </div>
           ))}
+          {isStreaming && (
+            <div className="text-left mb-2">
+              <span className="inline-block p-2 rounded-lg bg-gray-200">
+                Thinking...
+              </span>
+            </div>
+          )}
         </ScrollArea>
-      </Card>
-      <form onSubmit={handleSubmit} className="flex gap-2">
+      </div>
+      <div className="p-4 bg-white border-t">
         <Input
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="Type your message..."
-          className="flex-grow"
-          disabled={isStreaming}
+          type="password"
+          placeholder="Enter your OpenAI API Key"
+          value={apiKey}
+          onChange={(e) => setApiKey(e.target.value)}
+          className="mb-4"
         />
-        <Button type="submit" disabled={isStreaming}>
-          {isStreaming ? 'Sending...' : 'Send'}
-        </Button>
-      </form>
+        <form onSubmit={handleSubmit} className="flex gap-2">
+          <Input
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="Type your message..."
+            className="flex-grow"
+            disabled={isStreaming}
+          />
+          <Button type="submit" disabled={isStreaming}>
+            {isStreaming ? 'Sending...' : 'Send'}
+          </Button>
+        </form>
+      </div>
     </div>
   );
 };
