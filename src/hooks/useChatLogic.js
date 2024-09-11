@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from "@/components/ui/use-toast"
 
@@ -16,7 +16,6 @@ export const useChatLogic = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [audioUrl, setAudioUrl] = useState(null);
   const navigate = useNavigate();
-  const audioPlayerRef = useRef(null);
 
   useEffect(() => {
     if (!apiKey) {
@@ -104,7 +103,6 @@ export const useChatLogic = () => {
       const audioBlob = await response.blob();
       const audioUrl = URL.createObjectURL(audioBlob);
       setAudioUrl(audioUrl);
-      return audioUrl;
     } catch (error) {
       console.error('Error generating speech:', error);
       toast({
@@ -216,65 +214,6 @@ export const useChatLogic = () => {
     }
   };
 
-  const generateAnswer = async () => {
-    if (!apiKey) {
-      toast({
-        title: "API Key Missing",
-        description: "Please set your OpenAI API key in the settings.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsStreaming(true);
-
-    try {
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`
-        },
-        body: JSON.stringify({
-          model: 'gpt-4o-mini',
-          messages: [
-            { role: 'system', content: systemMessage },
-            ...conversations[currentConversationIndex].messages,
-            { role: 'user', content: '回答してください。' }
-          ]
-        })
-      });
-
-      const data = await response.json();
-      const answerContent = data.choices[0].message.content;
-
-      setConversations((prevConversations) => {
-        const updatedConversations = [...prevConversations];
-        updatedConversations[currentConversationIndex].messages.push(
-          { role: 'user', content: '回答してください。' },
-          { role: 'assistant', content: answerContent }
-        );
-        return updatedConversations;
-      });
-
-      // Generate speech for the answer and play it automatically
-      const newAudioUrl = await generateSpeech(answerContent);
-      if (audioPlayerRef.current && newAudioUrl) {
-        audioPlayerRef.current.src = newAudioUrl;
-        audioPlayerRef.current.play();
-      }
-    } catch (error) {
-      console.error('Error generating answer:', error);
-      toast({
-        title: "Error",
-        description: "Failed to generate an answer. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsStreaming(false);
-    }
-  };
-
   return {
     apiKey,
     setApiKey,
@@ -292,8 +231,6 @@ export const useChatLogic = () => {
     startNewConversation,
     switchConversation,
     toggleSidebar,
-    handleSubmit,
-    generateAnswer,
-    audioPlayerRef
+    handleSubmit
   };
 };

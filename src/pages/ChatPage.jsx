@@ -6,7 +6,7 @@ import ReactMarkdown from 'react-markdown'
 import SettingsModal from '@/components/SettingsModal';
 import VoiceInput from '@/components/VoiceInput';
 import AudioPlayer from '@/components/AudioPlayer';
-import { Loader2, PlusCircle, ChevronLeft, ChevronRight, Search, MessageSquare } from "lucide-react"
+import { Loader2, PlusCircle, ChevronLeft, ChevronRight, Search } from "lucide-react"
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
@@ -30,9 +30,7 @@ const ChatPage = () => {
     startNewConversation,
     switchConversation,
     toggleSidebar,
-    handleSubmit,
-    generateAnswer,
-    audioPlayerRef
+    handleSubmit
   } = useChatLogic();
 
   const scrollAreaRef = useRef(null);
@@ -138,7 +136,7 @@ const ChatPage = () => {
               </div>
               {message.role === 'assistant' && audioUrl && (
                 <div className="mt-2">
-                  <AudioPlayer audioUrl={audioUrl} ref={audioPlayerRef} />
+                  <AudioPlayer audioUrl={audioUrl} />
                 </div>
               )}
             </div>
@@ -157,9 +155,6 @@ const ChatPage = () => {
             <VoiceInput onTranscript={handleVoiceInput} />
             <Button type="submit" disabled={isStreaming} className="bg-usermsg hover:bg-blue-600">
               {isStreaming ? 'Sending...' : 'Send'}
-            </Button>
-            <Button type="button" onClick={generateAnswer} disabled={isStreaming} className="bg-green-500 hover:bg-green-600">
-              <MessageSquare className="mr-2 h-4 w-4" /> Answer
             </Button>
           </form>
         </div>
