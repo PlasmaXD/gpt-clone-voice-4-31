@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import ReactMarkdown from 'react-markdown'
 import SettingsModal from '@/components/SettingsModal';
+import VoiceInput from '@/components/VoiceInput';
 import { Loader2, PlusCircle, ChevronLeft, ChevronRight, Search } from "lucide-react"
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
@@ -41,6 +42,10 @@ const ChatPage = () => {
   const filteredConversations = conversations.filter(conversation =>
     conversation.title && conversation.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const handleVoiceInput = (transcript) => {
+    setInput(transcript);
+  };
 
   return (
     <div className="flex h-screen bg-chatbg">
@@ -140,6 +145,7 @@ const ChatPage = () => {
               className="flex-grow"
               disabled={isStreaming}
             />
+            <VoiceInput onTranscript={handleVoiceInput} />
             <Button type="submit" disabled={isStreaming} className="bg-usermsg hover:bg-blue-600">
               {isStreaming ? 'Sending...' : 'Send'}
             </Button>
