@@ -26,7 +26,6 @@ const ChatPage = () => {
     isSidebarOpen,
     searchQuery,
     setSearchQuery,
-    audioUrl,
     startNewConversation,
     switchConversation,
     toggleSidebar,
@@ -34,12 +33,21 @@ const ChatPage = () => {
   } = useChatLogic();
 
   const scrollAreaRef = useRef(null);
+  const audioRef = useRef(null);
 
   useEffect(() => {
     if (scrollAreaRef.current) {
       scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
     }
   }, [conversations]);
+
+  useEffect(() => {
+    const lastMessage = conversations[currentConversationIndex].messages[conversations[currentConversationIndex].messages.length - 1];
+    if (lastMessage && lastMessage.role === 'assistant' && lastMessage.audioUrl) {
+      audioRef.current = new Audio(lastMessage.audioUrl);
+      audioRef.current.play();
+    }
+  }, [conversations, currentConversationIndex]);
 
   const filteredConversations = conversations.filter(conversation =>
     conversation.title && conversation.title.toLowerCase().includes(searchQuery.toLowerCase())
@@ -134,9 +142,9 @@ const ChatPage = () => {
                   <Loader2 className="h-4 w-4 animate-spin inline-block ml-2" />
                 )}
               </div>
-              {message.role === 'assistant' && audioUrl && (
+              {message.role === 'assistant' && message.audioUrl && (
                 <div className="mt-2">
-                  <AudioPlayer audioUrl={audioUrl} />
+                  <AudioPlayer audioUrl={message.audioUrl} />
                 </div>
               )}
             </div>

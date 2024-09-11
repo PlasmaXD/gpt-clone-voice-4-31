@@ -2,19 +2,42 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from "@/components/ui/use-toast"
 
-export const useChatLogic = () => {
+const useApiKey = () => {
   const [apiKey, setApiKey] = useState(() => localStorage.getItem('openai_api_key') || '');
+  useEffect(() => {
+    localStorage.setItem('openai_api_key', apiKey);
+  }, [apiKey]);
+  return [apiKey, setApiKey];
+};
+
+const useSystemMessage = () => {
   const [systemMessage, setSystemMessage] = useState(() => localStorage.getItem('system_message') || 'You are a helpful assistant.');
+  useEffect(() => {
+    localStorage.setItem('system_message', systemMessage);
+  }, [systemMessage]);
+  return [systemMessage, setSystemMessage];
+};
+
+const useConversations = () => {
   const [conversations, setConversations] = useState(() => {
     const savedConversations = localStorage.getItem('conversations');
     return savedConversations ? JSON.parse(savedConversations) : [{ id: Date.now(), title: 'New Chat', messages: [] }];
   });
+  useEffect(() => {
+    localStorage.setItem('conversations', JSON.stringify(conversations));
+  }, [conversations]);
+  return [conversations, setConversations];
+};
+
+export const useChatLogic = () => {
+  const [apiKey, setApiKey] = useApiKey();
+  const [systemMessage, setSystemMessage] = useSystemMessage();
+  const [conversations, setConversations] = useConversations();
   const [currentConversationIndex, setCurrentConversationIndex] = useState(0);
   const [input, setInput] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [audioUrl, setAudioUrl] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -23,18 +46,9 @@ export const useChatLogic = () => {
     }
   }, [apiKey, navigate]);
 
-  useEffect(() => {
-    localStorage.setItem('openai_api_key', apiKey);
-    localStorage.setItem('system_message', systemMessage);
-    localStorage.setItem('conversations', JSON.stringify(conversations));
-  }, [apiKey, systemMessage, conversations]);
-
   const generateTitle = async (messages) => {
     try {
-      const concatenatedMessages = messages
-        .map(msg => `${msg.role}: ${msg.content}`)
-        .join('\n');
-
+      const concatenatedMessages = messages.map(msg => `${msg.role}: ${msg.content}`).join('\n');
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -50,7 +64,6 @@ export const useChatLogic = () => {
           max_tokens: 15
         })
       });
-
       const data = await response.json();
       return data.choices[0].message.content.trim();
     } catch (error) {
@@ -101,8 +114,7 @@ export const useChatLogic = () => {
       }
 
       const audioBlob = await response.blob();
-      const audioUrl = URL.createObjectURL(audioBlob);
-      setAudioUrl(audioUrl);
+      return URL.createObjectURL(audioBlob);
     } catch (error) {
       console.error('Error generating speech:', error);
       toast({
@@ -110,6 +122,7 @@ export const useChatLogic = () => {
         description: "Failed to generate speech. Please try again.",
         variant: "destructive",
       });
+      return null;
     }
   };
 
@@ -191,7 +204,13 @@ export const useChatLogic = () => {
       }
 
       // Generate speech for the assistant's response
-      await generateSpeech(assistantMessage.content);
+      const audioUrl = await generateSpeech(assistantMessage.content);
+      setConversations((prevConversations) => {
+        const updatedConversations = [...prevConversations];
+        const currentMessages = updatedConversations[currentConversationIndex].messages;
+        currentMessages[currentMessages.length - 1] = { ...assistantMessage, audioUrl };
+        return updatedConversations;
+      });
 
       // Generate title after the first message exchange
       if (conversations[currentConversationIndex].title === 'New Chat') {
@@ -227,7 +246,6 @@ export const useChatLogic = () => {
     isSidebarOpen,
     searchQuery,
     setSearchQuery,
-    audioUrl,
     startNewConversation,
     switchConversation,
     toggleSidebar,
