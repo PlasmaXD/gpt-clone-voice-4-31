@@ -5,6 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import ReactMarkdown from 'react-markdown'
 import SettingsModal from '@/components/SettingsModal';
 import VoiceInput from '@/components/VoiceInput';
+import AudioPlayer from '@/components/AudioPlayer';
 import { Loader2, PlusCircle, ChevronLeft, ChevronRight, Search } from "lucide-react"
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
@@ -25,6 +26,7 @@ const ChatPage = () => {
     isSidebarOpen,
     searchQuery,
     setSearchQuery,
+    audioUrl,
     startNewConversation,
     switchConversation,
     toggleSidebar,
@@ -132,6 +134,11 @@ const ChatPage = () => {
                   <Loader2 className="h-4 w-4 animate-spin inline-block ml-2" />
                 )}
               </div>
+              {message.role === 'assistant' && audioUrl && (
+                <div className="mt-2">
+                  <AudioPlayer audioUrl={audioUrl} />
+                </div>
+              )}
             </div>
           ))}
         </ScrollArea>

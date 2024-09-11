@@ -14,6 +14,7 @@ export const useChatLogic = () => {
   const [isStreaming, setIsStreaming] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [audioUrl, setAudioUrl] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -78,6 +79,38 @@ export const useChatLogic = () => {
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
+  };
+
+  const generateSpeech = async (text) => {
+    try {
+      const response = await fetch('https://api.openai.com/v1/audio/speech', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({
+          model: 'tts-1',
+          input: text,
+          voice: 'alloy'
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate speech');
+      }
+
+      const audioBlob = await response.blob();
+      const audioUrl = URL.createObjectURL(audioBlob);
+      setAudioUrl(audioUrl);
+    } catch (error) {
+      console.error('Error generating speech:', error);
+      toast({
+        title: "Speech Generation Error",
+        description: "Failed to generate speech. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -157,6 +190,9 @@ export const useChatLogic = () => {
         }
       }
 
+      // Generate speech for the assistant's response
+      await generateSpeech(assistantMessage.content);
+
       // Generate title after the first message exchange
       if (conversations[currentConversationIndex].title === 'New Chat') {
         const newTitle = await generateTitle([userMessage, assistantMessage]);
@@ -191,6 +227,7 @@ export const useChatLogic = () => {
     isSidebarOpen,
     searchQuery,
     setSearchQuery,
+    audioUrl,
     startNewConversation,
     switchConversation,
     toggleSidebar,
