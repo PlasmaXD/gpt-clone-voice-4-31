@@ -15,13 +15,14 @@ import ScoreDisplay from '@/components/ScoreDisplay';
 import Avatar from '@/components/Avatar';
 import RoleSelector from '@/components/RoleSelector';
 import ModelAnswer from '@/components/ModelAnswer';
+import ScriptUploader from '@/components/ScriptUploader';
 
 const ChatPage = () => {
   const {
     apiKey, setApiKey, systemMessage, setSystemMessage, conversations, currentConversationIndex,
     input, setInput, isStreaming, isSidebarOpen, searchQuery, setSearchQuery, startNewConversation,
     switchConversation, toggleSidebar, handleSubmit, score, lastScoreChange, lastFeedback,
-    selectedRole, setSelectedRole
+    selectedRole, setSelectedRole, handleScriptUpload, script, currentScriptIndex
   } = useChatLogic();
 
   const scrollAreaRef = useRef(null);
@@ -82,6 +83,7 @@ const ChatPage = () => {
           />
         </div>
         <Avatar score={score} />
+        <ScriptUploader onScriptUpload={handleScriptUpload} />
         <ScrollArea className="flex-grow p-4" ref={scrollAreaRef}>
           {conversations[currentConversationIndex]?.messages.map((message, index) => (
             <div key={index} className={`mb-4 ${message.role === 'user' ? 'text-right' : 'text-left'}`}>
@@ -136,9 +138,9 @@ const ChatPage = () => {
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Type your message..."
+              placeholder={script.length > 0 ? script[currentScriptIndex] || "スクリプトが終了しました" : "Type your message..."}
               className="flex-grow"
-              disabled={isStreaming}
+              disabled={isStreaming || (script.length > 0 && currentScriptIndex < script.length)}
             />
             <VoiceInput onTranscript={handleVoiceInput} />
             <Button type="submit" disabled={isStreaming} className="bg-usermsg hover:bg-blue-600">
