@@ -2,34 +2,34 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from "@/components/ui/use-toast"
 
-const useApiKey = () => {
-  const [apiKey, setApiKey] = useState(() => localStorage.getItem('openai_api_key') || '');
-  useEffect(() => {
-    localStorage.setItem('openai_api_key', apiKey);
-  }, [apiKey]);
-  return [apiKey, setApiKey];
-};
-
-const useSystemMessage = () => {
-  const [systemMessage, setSystemMessage] = useState(() => localStorage.getItem('system_message') || 'You are a helpful assistant.');
-  useEffect(() => {
-    localStorage.setItem('system_message', systemMessage);
-  }, [systemMessage]);
-  return [systemMessage, setSystemMessage];
-};
-
-const useConversations = () => {
-  const [conversations, setConversations] = useState(() => {
-    const savedConversations = localStorage.getItem('conversations');
-    return savedConversations ? JSON.parse(savedConversations) : [];
+const useLocalStorage = (key, initialValue) => {
+  const [storedValue, setStoredValue] = useState(() => {
+    try {
+      const item = localStorage.getItem(key);
+      return item ? JSON.parse(item) : initialValue;
+    } catch (error) {
+      console.error(error);
+      return initialValue;
+    }
   });
-  useEffect(() => {
-    localStorage.setItem('conversations', JSON.stringify(conversations));
-  }, [conversations]);
-  return [conversations, setConversations];
+
+  const setValue = (value) => {
+    try {
+      const valueToStore = value instanceof Function ? value(storedValue) : value;
+      setStoredValue(valueToStore);
+      localStorage.setItem(key, JSON.stringify(valueToStore));
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  return [storedValue, setValue];
 };
 
 const useChatState = () => {
+  const [apiKey, setApiKey] = useLocalStorage('openai_api_key', '');
+  const [systemMessage, setSystemMessage] = useLocalStorage('system_message', 'You are a helpful assistant.');
+  const [conversations, setConversations] = useLocalStorage('conversations', []);
   const [currentConversationIndex, setCurrentConversationIndex] = useState(0);
   const [input, setInput] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
@@ -37,7 +37,11 @@ const useChatState = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedRole, setSelectedRole] = useState(null);
   const [isSelectingRole, setIsSelectingRole] = useState(false);
+
   return {
+    apiKey, setApiKey,
+    systemMessage, setSystemMessage,
+    conversations, setConversations,
     currentConversationIndex, setCurrentConversationIndex,
     input, setInput,
     isStreaming, setIsStreaming,
@@ -48,7 +52,17 @@ const useChatState = () => {
   };
 };
 
-const useChat = (apiKey, systemMessage, conversations, setConversations, currentConversationIndex, setIsStreaming) => {
+const useChat = (state) => {
+  const {
+    apiKey,
+    systemMessage,
+    conversations,
+    setConversations,
+    currentConversationIndex,
+    setCurrentConversationIndex,
+    setIsStreaming
+  } = state;
+
   const generateTitle = async (messages) => {
     try {
       const concatenatedMessages = messages.map(msg => `${msg.role}: ${msg.content}`).join('\n');
@@ -185,51 +199,22 @@ const useChat = (apiKey, systemMessage, conversations, setConversations, current
 };
 
 export const useChatLogic = () => {
-  const [apiKey, setApiKey] = useApiKey();
-  const [systemMessage, setSystemMessage] = useSystemMessage();
-  const [conversations, setConversations] = useConversations();
-  const {
-    currentConversationIndex, setCurrentConversationIndex,
-    input, setInput,
-    isStreaming, setIsStreaming,
-    isSidebarOpen, setIsSidebarOpen,
-    searchQuery, setSearchQuery,
-    selectedRole, setSelectedRole,
-    isSelectingRole, setIsSelectingRole
-  } = useChatState();
+  const state = useChatState();
+  const { startNewConversation, switchConversation, handleSubmit: submitChat } = useChat(state);
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!apiKey) {
+    if (!state.apiKey) {
       navigate('/');
     }
-  }, [apiKey, navigate]);
+  }, [state.apiKey, navigate]);
 
-  const { startNewConversation, switchConversation, handleSubmit: submitChat } = useChat(
-    apiKey, systemMessage, conversations, setConversations, currentConversationIndex, setIsStreaming
-  );
+  const toggleSidebar = () => state.setIsSidebarOpen(!state.isSidebarOpen);
 
-  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
-
-  const handleSubmit = (e) => submitChat(e, input);
+  const handleSubmit = (e) => submitChat(e, state.input);
 
   return {
-    apiKey,
-    setApiKey,
-    systemMessage,
-    setSystemMessage,
-    conversations,
-    currentConversationIndex,
-    input,
-    setInput,
-    isStreaming,
-    isSidebarOpen,
-    searchQuery,
-    setSearchQuery,
-    selectedRole,
-    setSelectedRole,
-    isSelectingRole,
-    setIsSelectingRole,
+    ...state,
     startNewConversation,
     switchConversation,
     toggleSidebar,
