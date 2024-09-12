@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -9,9 +9,9 @@ import LandingPage from "./pages/LandingPage";
 const queryClient = new QueryClient();
 
 const App = () => {
-  const [hasApiKey, setHasApiKey] = useState(false);
+  const [hasApiKey, setHasApiKey] = React.useState(false);
 
-  useEffect(() => {
+  React.useEffect(() => {
     const storedApiKey = localStorage.getItem('openai_api_key');
     setHasApiKey(!!storedApiKey);
   }, []);
