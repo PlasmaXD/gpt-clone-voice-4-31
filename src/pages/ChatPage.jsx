@@ -1,42 +1,25 @@
 import React, { useRef, useEffect } from 'react';
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import ReactMarkdown from 'react-markdown'
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import ReactMarkdown from 'react-markdown';
 import SettingsModal from '@/components/SettingsModal';
 import VoiceInput from '@/components/VoiceInput';
 import AudioPlayer from '@/components/AudioPlayer';
 import RoleSelector from '@/components/RoleSelector';
-import { Loader2, PlusCircle, ChevronLeft, ChevronRight, Search } from "lucide-react"
+import Sidebar from '@/components/Sidebar';
+import { Loader2 } from "lucide-react";
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { useChatLogic } from '@/hooks/useChatLogic';
 import ScoreDisplay from '@/components/ScoreDisplay';
 
 const ChatPage = () => {
   const {
-    apiKey,
-    setApiKey,
-    systemMessage,
-    setSystemMessage,
-    conversations,
-    currentConversationIndex,
-    input,
-    setInput,
-    isStreaming,
-    isSidebarOpen,
-    searchQuery,
-    setSearchQuery,
-    startNewConversation,
-    switchConversation,
-    toggleSidebar,
-    handleSubmit,
-    selectedRole,
-    setSelectedRole,
-    score,
-    lastScoreChange,
-    lastFeedback
+    apiKey, setApiKey, systemMessage, setSystemMessage, conversations, currentConversationIndex,
+    input, setInput, isStreaming, isSidebarOpen, searchQuery, setSearchQuery, startNewConversation,
+    switchConversation, toggleSidebar, handleSubmit, selectedRole, setSelectedRole, score,
+    lastScoreChange, lastFeedback
   } = useChatLogic();
 
   const scrollAreaRef = useRef(null);
@@ -117,10 +100,6 @@ const ChatPage = () => {
     </div>
   );
 };
-
-const Sidebar = ({ isSidebarOpen, toggleSidebar, startNewConversation, searchQuery, setSearchQuery, filteredConversations, currentConversationIndex, switchConversation }) => (
-  // ... (keep existing Sidebar component code)
-);
 
 const ChatArea = ({ selectedRole, apiKey, setApiKey, systemMessage, setSystemMessage, conversations, currentConversationIndex, isStreaming, getRoleName, scrollAreaRef, input, setInput, handleSubmit, handleVoiceInput, score, lastScoreChange, lastFeedback }) => (
   <div className="flex flex-col flex-grow overflow-hidden">
