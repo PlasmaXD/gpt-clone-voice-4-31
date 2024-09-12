@@ -3,11 +3,11 @@ import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 
 const roles = [
-  { id: 'teacher_student', name: '先生と生徒', systemMessage: 'あなたは教育者として振る舞います。生徒の質問に丁寧に答え、理解を深めるよう努めてください。' },
-  { id: 'customer_clerk', name: '客と店員', systemMessage: 'あなたは店員として振る舞います。顧客の要望に親切に対応し、適切な商品やサービスを提案してください。' },
-  { id: 'doctor_patient', name: '医者と患者', systemMessage: 'あなたは医師として振る舞います。患者の症状を注意深く聞き、適切な診断とアドバイスを提供してください。' },
-  { id: 'interviewer_interviewee', name: '面接官と応募者', systemMessage: 'あなたは面接官として振る舞います。応募者の経験やスキルを評価し、適切な質問をしてください。' },
-  { id: 'coach_athlete', name: 'コーチと選手', systemMessage: 'あなたはスポーツコーチとして振る舞います。選手のパフォーマンス向上のためのアドバイスや励ましを提供してください。' },
+  { id: 'teacher_student', name: '先生と生徒', systemMessage: 'あなたは生徒として振る舞います。先生の質問に答え、わからないことを質問してください。', userRole: '先生', assistantRole: '生徒' },
+  { id: 'customer_clerk', name: '店員と客', systemMessage: 'あなたは客として振る舞います。商品について質問し、店員のアドバイスを求めてください。', userRole: '店員', assistantRole: '客' },
+  { id: 'doctor_patient', name: '医者と患者', systemMessage: 'あなたは患者として振る舞います。症状を説明し、医者のアドバイスを求めてください。', userRole: '医者', assistantRole: '患者' },
+  { id: 'interviewer_interviewee', name: '面接官と応募者', systemMessage: 'あなたは応募者として振る舞います。自己PRを行い、面接官の質問に答えてください。', userRole: '面接官', assistantRole: '応募者' },
+  { id: 'coach_athlete', name: 'コーチと選手', systemMessage: 'あなたは選手として振る舞います。パフォーマンスについて相談し、コーチのアドバイスを求めてください。', userRole: 'コーチ', assistantRole: '選手' },
 ];
 
 const RoleSelector = ({ onSelectRole }) => {
