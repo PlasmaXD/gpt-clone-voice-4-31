@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, Suspense, lazy } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -15,6 +15,7 @@ import ScoreDisplay from '@/components/ScoreDisplay';
 import Avatar from '@/components/Avatar';
 import RoleSelector from '@/components/RoleSelector';
 
+const ReactLive2d = lazy(() => import('react-live2d'));
 const ChatPage = () => {
   const {
     apiKey, setApiKey, systemMessage, setSystemMessage, conversations, currentConversationIndex,
@@ -125,6 +126,19 @@ const ChatPage = () => {
               )}
             </div>
           ))}
+              <Suspense fallback={<div>Loading Live2D...</div>}>
+            <ReactLive2d
+              width={500}
+              height={750}
+              botton="5px"
+              left="470px"
+              ModelList={['Haru']}
+              TouchDefault={['']}
+              TouchBody={['']}
+              TouchHead={['']}
+              PathFull='http://publicjs.supmiao.com/Resources/'
+              />
+              </Suspense>
         </ScrollArea>
         <div className="p-4 bg-white border-t shadow-md">
           <form onSubmit={handleSubmit} className="flex gap-2">
