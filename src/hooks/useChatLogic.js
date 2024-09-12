@@ -19,6 +19,7 @@ export const useChatLogic = () => {
   const [score, setScore] = useState(50);
   const [lastScoreChange, setLastScoreChange] = useState(0);
   const [lastFeedback, setLastFeedback] = useState('');
+  const [currentPromptIndex, setCurrentPromptIndex] = useState(0);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -32,6 +33,7 @@ export const useChatLogic = () => {
     ]);
     setCurrentConversationIndex(conversations.length);
     setInput('');
+    setCurrentPromptIndex(0);
   };
 
   const switchConversation = (index) => {
@@ -122,6 +124,9 @@ export const useChatLogic = () => {
           });
         }
       }
+
+      // Move to the next prompt
+      setCurrentPromptIndex((prevIndex) => (prevIndex + 1) % selectedRole.assistantPrompts.length);
     } catch (error) {
       console.error('Error:', error);
       toast({
@@ -160,6 +165,7 @@ export const useChatLogic = () => {
     startNewConversation,
     switchConversation,
     toggleSidebar,
-    handleSubmit
+    handleSubmit,
+    currentPromptIndex
   };
 };
