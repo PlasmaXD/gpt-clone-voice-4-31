@@ -32,7 +32,8 @@ const ChatPage = () => {
     toggleSidebar,
     handleSubmit,
     selectedRole,
-    setSelectedRole
+    setSelectedRole,
+    score
   } = useChatLogic();
 
   const scrollAreaRef = useRef(null);
@@ -106,6 +107,7 @@ const ChatPage = () => {
         setInput={setInput}
         handleSubmit={handleSubmit}
         handleVoiceInput={handleVoiceInput}
+        score={score}
       />
     </div>
   );
@@ -154,10 +156,11 @@ const Sidebar = ({ isSidebarOpen, toggleSidebar, startNewConversation, searchQue
   </div>
 );
 
-const ChatArea = ({ selectedRole, apiKey, setApiKey, systemMessage, setSystemMessage, conversations, currentConversationIndex, isStreaming, getRoleName, scrollAreaRef, input, setInput, handleSubmit, handleVoiceInput }) => (
+const ChatArea = ({ selectedRole, apiKey, setApiKey, systemMessage, setSystemMessage, conversations, currentConversationIndex, isStreaming, getRoleName, scrollAreaRef, input, setInput, handleSubmit, handleVoiceInput, score }) => (
   <div className="flex flex-col flex-grow overflow-hidden">
     <div className="flex justify-between items-center p-4">
       <div className="text-lg font-semibold">{selectedRole.name}</div>
+      <div className="text-lg font-semibold">Score: {score}</div>
       <SettingsModal
         apiKey={apiKey}
         setApiKey={setApiKey}
