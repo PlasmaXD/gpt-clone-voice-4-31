@@ -6,22 +6,18 @@ const Avatar = ({ score }) => {
   let color;
 
   if (score >= 70) {
-    AvatarIcon = UserCheck;
-    color = 'text-green-500';
+    AvatarIcon = "./pic/VerySmile.png";
   } else if (score >= 40) {
-    AvatarIcon = User;
-    color = 'text-blue-500';
+    AvatarIcon = "./pic/Smile.png";
   } else if (score >= 20) {
-    AvatarIcon = UserMinus;
-    color = 'text-yellow-500';
+    AvatarIcon = "./pic/Sad.png";
   } else {
-    AvatarIcon = UserX;
-    color = 'text-red-500';
+    AvatarIcon = "./pic/Straight.png";
   }
 
   return (
     <div className="flex justify-center items-center mb-4">
-      <AvatarIcon className={`h-16 w-16 ${color}`} />
+    <img src={AvatarIcon} alt="My Image" style={{ width: '200px', height: '200px' }} />
     </div>
   );
 };
