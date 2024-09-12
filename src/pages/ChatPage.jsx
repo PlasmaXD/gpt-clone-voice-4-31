@@ -66,7 +66,7 @@ const ChatPage = () => {
       />
       <div className="flex flex-col flex-grow overflow-hidden">
         <div className="flex justify-between items-center p-4">
-          <div className="text-lg font-semibold">Chat</div>
+          <div className="text-lg font-semibold">Chat: {selectedRole.name}</div>
           <ScoreDisplay score={score} lastScoreChange={lastScoreChange} lastFeedback={lastFeedback} />
           <SettingsModal
             apiKey={apiKey}
@@ -75,7 +75,7 @@ const ChatPage = () => {
             setSystemMessage={setSystemMessage}
           />
         </div>
-        <Avatar score={score} />
+        <Avatar score={score} role={selectedRole.assistantRole} />
         <ScrollArea className="flex-grow p-4" ref={scrollAreaRef}>
           {conversations[currentConversationIndex]?.messages.map((message, index) => (
             <div key={index} className={`mb-4 ${message.role === 'user' ? 'text-right' : 'text-left'}`}>
@@ -127,7 +127,7 @@ const ChatPage = () => {
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Type your message..."
+              placeholder={`Type your message as ${selectedRole.userRole}...`}
               className="flex-grow"
               disabled={isStreaming}
             />
