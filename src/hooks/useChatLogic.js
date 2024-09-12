@@ -71,6 +71,10 @@ export const useChatLogic = () => {
   const handleScriptUpload = (uploadedScript) => {
     setScript(uploadedScript);
     setCurrentScriptIndex(0);
+    toast({
+      title: "Script Uploaded",
+      description: `Uploaded ${uploadedScript.length} lines of script.`,
+    });
   };
 
   const handleSubmit = async (e) => {
