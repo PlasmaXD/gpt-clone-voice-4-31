@@ -66,6 +66,12 @@ const ChatPage = () => {
     startNewConversation();
   };
 
+  const getRoleName = (messageRole) => {
+    if (!selectedRole) return messageRole === 'user' ? 'ユーザー' : 'ChatGPT';
+    const [userRole, assistantRole] = selectedRole.name.split('と');
+    return messageRole === 'user' ? userRole : assistantRole;
+  };
+
   if (!selectedRole) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-chatbg">
@@ -133,7 +139,7 @@ const ChatPage = () => {
                 message.role === 'user' ? 'bg-usermsg text-white' : 'bg-assistantmsg text-gray-800'
               }`}>
                 <div className="font-bold mb-1">
-                  {message.role === 'user' ? 'ユーザー' : 'ChatGPT'}
+                  {getRoleName(message.role)}
                 </div>
                 <ReactMarkdown
                   className="prose max-w-none dark:prose-invert"
