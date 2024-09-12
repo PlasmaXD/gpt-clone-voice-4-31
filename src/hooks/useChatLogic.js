@@ -38,6 +38,7 @@ export const useChatLogic = () => {
   const [isStreaming, setIsStreaming] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedRole, setSelectedRole] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -246,6 +247,8 @@ export const useChatLogic = () => {
     isSidebarOpen,
     searchQuery,
     setSearchQuery,
+    selectedRole,
+    setSelectedRole,
     startNewConversation,
     switchConversation,
     toggleSidebar,

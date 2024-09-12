@@ -6,6 +6,7 @@ import ReactMarkdown from 'react-markdown'
 import SettingsModal from '@/components/SettingsModal';
 import VoiceInput from '@/components/VoiceInput';
 import AudioPlayer from '@/components/AudioPlayer';
+import RoleSelector from '@/components/RoleSelector';
 import { Loader2, PlusCircle, ChevronLeft, ChevronRight, Search } from "lucide-react"
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
@@ -29,7 +30,9 @@ const ChatPage = () => {
     startNewConversation,
     switchConversation,
     toggleSidebar,
-    handleSubmit
+    handleSubmit,
+    selectedRole,
+    setSelectedRole
   } = useChatLogic();
 
   const scrollAreaRef = useRef(null);
@@ -56,6 +59,17 @@ const ChatPage = () => {
   const handleVoiceInput = (transcript) => {
     setInput(transcript);
   };
+
+  if (!selectedRole) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-chatbg">
+        <RoleSelector onSelectRole={(role) => {
+          setSelectedRole(role);
+          setSystemMessage(role.systemMessage);
+        }} />
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen bg-chatbg">
@@ -100,7 +114,8 @@ const ChatPage = () => {
         </Collapsible>
       </div>
       <div className="flex flex-col flex-grow overflow-hidden">
-        <div className="flex justify-end p-4">
+        <div className="flex justify-between items-center p-4">
+          <div className="text-lg font-semibold">{selectedRole.name}</div>
           <SettingsModal
             apiKey={apiKey}
             setApiKey={setApiKey}
