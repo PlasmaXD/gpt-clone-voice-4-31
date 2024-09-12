@@ -5,20 +5,20 @@ const Avatar = ({ score }) => {
   let altText;
 
   if (score >= 80) {
-    avatarSrc = "/happy-avatar.png";
-    altText = "Happy face";
+    avatarSrc = "/avatars/very-happy.png";
+    altText = "Very happy face";
   } else if (score >= 60) {
-    avatarSrc = "/content-avatar.png";
-    altText = "Content face";
+    avatarSrc = "/avatars/happy.png";
+    altText = "Happy face";
   } else if (score >= 40) {
-    avatarSrc = "/neutral-avatar.png";
+    avatarSrc = "/avatars/neutral.png";
     altText = "Neutral face";
   } else if (score >= 20) {
-    avatarSrc = "/concerned-avatar.png";
-    altText = "Concerned face";
-  } else {
-    avatarSrc = "/sad-avatar.png";
+    avatarSrc = "/avatars/sad.png";
     altText = "Sad face";
+  } else {
+    avatarSrc = "/avatars/very-sad.png";
+    altText = "Very sad face";
   }
 
   return (
@@ -26,7 +26,7 @@ const Avatar = ({ score }) => {
       <img 
         src={avatarSrc} 
         alt={altText} 
-        className="w-16 h-16 rounded-full mx-auto object-cover"
+        className="w-24 h-24 rounded-full mx-auto object-cover border-4 border-gray-200"
       />
     </div>
   );
