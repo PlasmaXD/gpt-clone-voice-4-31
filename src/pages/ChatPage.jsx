@@ -45,7 +45,7 @@ const ChatPage = () => {
   }, [conversations]);
 
   useEffect(() => {
-    const lastMessage = conversations[currentConversationIndex].messages[conversations[currentConversationIndex].messages.length - 1];
+    const lastMessage = conversations[currentConversationIndex]?.messages[conversations[currentConversationIndex]?.messages.length - 1];
     if (lastMessage && lastMessage.role === 'assistant' && lastMessage.audioUrl) {
       audioRef.current = new Audio(lastMessage.audioUrl);
       audioRef.current.play();
@@ -166,7 +166,7 @@ const ChatArea = ({ selectedRole, apiKey, setApiKey, systemMessage, setSystemMes
       />
     </div>
     <ScrollArea className="flex-grow p-4" ref={scrollAreaRef}>
-      {conversations[currentConversationIndex].messages.map((message, index) => (
+      {conversations[currentConversationIndex]?.messages.map((message, index) => (
         <div key={index} className={`mb-4 ${message.role === 'user' ? 'text-right' : 'text-left'}`}>
           <div className={`inline-block p-3 rounded-lg shadow-md ${
             message.role === 'user' ? 'bg-usermsg text-white' : 'bg-assistantmsg text-gray-800'
