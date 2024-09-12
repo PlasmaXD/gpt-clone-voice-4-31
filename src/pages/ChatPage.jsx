@@ -134,7 +134,7 @@ const ChatPage = () => {
               left="470px"
               ModelList={['Haru']}
               TouchDefault={['']}
-              TouchBody={['']}
+              TouchBody={['','']}
               TouchHead={['']}
               PathFull='http://publicjs.supmiao.com/Resources/'
               />
