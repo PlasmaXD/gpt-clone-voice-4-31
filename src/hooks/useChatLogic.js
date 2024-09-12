@@ -21,7 +21,27 @@ export const useChatLogic = () => {
   const [lastFeedback, setLastFeedback] = useState('');
   const navigate = useNavigate();
 
-  // ... (keep other existing code)
+  useEffect(() => {
+    localStorage.setItem('conversations', JSON.stringify(conversations));
+  }, [conversations]);
+
+  const startNewConversation = () => {
+    setConversations(prevConversations => [
+      ...prevConversations,
+      { title: 'New Conversation', messages: [] }
+    ]);
+    setCurrentConversationIndex(conversations.length);
+    setInput('');
+  };
+
+  const switchConversation = (index) => {
+    setCurrentConversationIndex(index);
+    setInput('');
+  };
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(prev => !prev);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -37,7 +57,34 @@ export const useChatLogic = () => {
     setIsStreaming(true);
 
     try {
-      // ... (keep existing API call code)
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({
+          model: 'gpt-3.5-turbo',
+          messages: [
+            { role: 'system', content: systemMessage },
+            ...conversations[currentConversationIndex].messages,
+            userMessage
+          ]
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch response from OpenAI');
+      }
+
+      const data = await response.json();
+      const assistantMessage = { role: 'assistant', content: data.choices[0].message.content };
+
+      setConversations(prevConversations => {
+        const updatedConversations = [...prevConversations];
+        updatedConversations[currentConversationIndex].messages.push(assistantMessage);
+        return updatedConversations;
+      });
 
       // Score the response
       const { scoreChange, feedback } = scoreResponse(userMessage.content, assistantMessage.content);
@@ -48,9 +95,40 @@ export const useChatLogic = () => {
       setLastScoreChange(scoreChange);
       setLastFeedback(feedback);
 
-      // ... (keep existing code for title generation)
+      // Generate a title for the conversation if it's the first message
+      if (conversations[currentConversationIndex].messages.length === 0) {
+        const titleResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`
+          },
+          body: JSON.stringify({
+            model: 'gpt-3.5-turbo',
+            messages: [
+              { role: 'system', content: 'Generate a short title (max 6 words) for this conversation based on the first message.' },
+              userMessage
+            ]
+          })
+        });
+
+        if (titleResponse.ok) {
+          const titleData = await titleResponse.json();
+          const title = titleData.choices[0].message.content.trim();
+          setConversations(prevConversations => {
+            const updatedConversations = [...prevConversations];
+            updatedConversations[currentConversationIndex].title = title;
+            return updatedConversations;
+          });
+        }
+      }
     } catch (error) {
       console.error('Error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch response. Please check your API key and try again.",
+        variant: "destructive",
+      });
       setConversations(prevConversations => {
         const updatedConversations = [...prevConversations];
         updatedConversations[currentConversationIndex].messages.push({ role: 'assistant', content: 'Error: Unable to fetch response' });
