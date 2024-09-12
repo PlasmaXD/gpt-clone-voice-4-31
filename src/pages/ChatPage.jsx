@@ -32,9 +32,7 @@ const ChatPage = () => {
     toggleSidebar,
     handleSubmit,
     selectedRole,
-    setSelectedRole,
-    isSelectingRole,
-    setIsSelectingRole
+    setSelectedRole
   } = useChatLogic();
 
   const scrollAreaRef = useRef(null);
@@ -47,7 +45,7 @@ const ChatPage = () => {
   }, [conversations]);
 
   useEffect(() => {
-    const lastMessage = conversations[currentConversationIndex]?.messages[conversations[currentConversationIndex].messages.length - 1];
+    const lastMessage = conversations[currentConversationIndex].messages[conversations[currentConversationIndex].messages.length - 1];
     if (lastMessage && lastMessage.role === 'assistant' && lastMessage.audioUrl) {
       audioRef.current = new Audio(lastMessage.audioUrl);
       audioRef.current.play();
@@ -66,14 +64,9 @@ const ChatPage = () => {
     setSelectedRole(role);
     setSystemMessage(role.systemMessage);
     startNewConversation();
-    setIsSelectingRole(false);
   };
 
-  const handleNewChat = () => {
-    setIsSelectingRole(true);
-  };
-
-  if (isSelectingRole) {
+  if (!selectedRole) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-chatbg">
         <RoleSelector onSelectRole={handleRoleSelection} />
@@ -86,7 +79,7 @@ const ChatPage = () => {
       <div className="relative">
         <Collapsible open={isSidebarOpen} onOpenChange={toggleSidebar} className="bg-white border-r">
           <CollapsibleContent className="w-64 p-4">
-            <Button onClick={handleNewChat} className="w-full mb-4">
+            <Button onClick={startNewConversation} className="w-full mb-4">
               <PlusCircle className="mr-2 h-4 w-4" /> New Chat
             </Button>
             <div className="relative mb-4">
@@ -125,7 +118,7 @@ const ChatPage = () => {
       </div>
       <div className="flex flex-col flex-grow overflow-hidden">
         <div className="flex justify-between items-center p-4">
-          <div className="text-lg font-semibold">{selectedRole?.name || 'Chat'}</div>
+          <div className="text-lg font-semibold">{selectedRole.name}</div>
           <SettingsModal
             apiKey={apiKey}
             setApiKey={setApiKey}
@@ -134,7 +127,7 @@ const ChatPage = () => {
           />
         </div>
         <ScrollArea className="flex-grow p-4" ref={scrollAreaRef}>
-          {conversations[currentConversationIndex]?.messages.map((message, index) => (
+          {conversations[currentConversationIndex].messages.map((message, index) => (
             <div key={index} className={`mb-4 ${message.role === 'user' ? 'text-right' : 'text-left'}`}>
               <div className={`inline-block p-3 rounded-lg shadow-md ${
                 message.role === 'user' ? 'bg-usermsg text-white' : 'bg-assistantmsg text-gray-800'
