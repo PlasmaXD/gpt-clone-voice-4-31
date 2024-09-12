@@ -102,6 +102,30 @@ export const useChatLogic = () => {
       const data = await response.json();
       const assistantMessage = { role: 'assistant', content: data.choices[0].message.content };
 
+      // Generate model answer if the role is a teacher
+      if (selectedRole && selectedRole.userRole === '先生') {
+        const modelAnswerResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`
+          },
+          body: JSON.stringify({
+            model: 'gpt-3.5-turbo',
+            messages: [
+              { role: 'system', content: 'You are an expert in the subject. Provide a model answer to the student\'s question.' },
+              userMessage,
+              { role: 'assistant', content: 'Here\'s a model answer to the student\'s question:' }
+            ]
+          })
+        });
+
+        if (modelAnswerResponse.ok) {
+          const modelAnswerData = await modelAnswerResponse.json();
+          assistantMessage.modelAnswer = modelAnswerData.choices[0].message.content;
+        }
+      }
+
       setConversations(prevConversations => {
         const updatedConversations = [...prevConversations];
         updatedConversations[currentConversationIndex].messages.push(assistantMessage);

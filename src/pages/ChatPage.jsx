@@ -14,6 +14,7 @@ import { useChatLogic } from '@/hooks/useChatLogic';
 import ScoreDisplay from '@/components/ScoreDisplay';
 import Avatar from '@/components/Avatar';
 import RoleSelector from '@/components/RoleSelector';
+import ModelAnswer from '@/components/ModelAnswer';
 
 const ChatPage = () => {
   const {
@@ -122,6 +123,9 @@ const ChatPage = () => {
                 <div className="mt-2">
                   <AudioPlayer audioUrl={message.audioUrl} />
                 </div>
+              )}
+              {message.role === 'assistant' && selectedRole.userRole === '先生' && message.modelAnswer && (
+                <ModelAnswer content={message.modelAnswer} />
               )}
             </div>
           ))}
