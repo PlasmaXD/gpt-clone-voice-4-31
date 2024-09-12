@@ -139,6 +139,14 @@ export const useChatLogic = () => {
     }
   };
 
+  const getNextAssistantPrompt = () => {
+    if (!selectedRole || !selectedRole.assistantPrompts) return null;
+    const currentMessages = conversations[currentConversationIndex].messages;
+    const assistantMessages = currentMessages.filter(msg => msg.role === 'assistant');
+    const promptIndex = assistantMessages.length % selectedRole.assistantPrompts.length;
+    return selectedRole.assistantPrompts[promptIndex];
+  };
+
   return {
     apiKey,
     setApiKey,
@@ -160,6 +168,7 @@ export const useChatLogic = () => {
     startNewConversation,
     switchConversation,
     toggleSidebar,
-    handleSubmit
+    handleSubmit,
+    getNextAssistantPrompt
   };
 };
