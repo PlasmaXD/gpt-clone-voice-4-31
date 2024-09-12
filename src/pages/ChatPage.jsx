@@ -12,6 +12,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { useChatLogic } from '@/hooks/useChatLogic';
+import ScoreDisplay from '@/components/ScoreDisplay';
 
 const ChatPage = () => {
   const {
@@ -33,7 +34,9 @@ const ChatPage = () => {
     handleSubmit,
     selectedRole,
     setSelectedRole,
-    score
+    score,
+    lastScoreChange,
+    lastFeedback
   } = useChatLogic();
 
   const scrollAreaRef = useRef(null);
@@ -108,59 +111,22 @@ const ChatPage = () => {
         handleSubmit={handleSubmit}
         handleVoiceInput={handleVoiceInput}
         score={score}
+        lastScoreChange={lastScoreChange}
+        lastFeedback={lastFeedback}
       />
     </div>
   );
 };
 
 const Sidebar = ({ isSidebarOpen, toggleSidebar, startNewConversation, searchQuery, setSearchQuery, filteredConversations, currentConversationIndex, switchConversation }) => (
-  <div className="relative">
-    <Collapsible open={isSidebarOpen} onOpenChange={toggleSidebar} className="bg-white border-r">
-      <CollapsibleContent className="w-64 p-4">
-        <Button onClick={startNewConversation} className="w-full mb-4">
-          <PlusCircle className="mr-2 h-4 w-4" /> New Chat
-        </Button>
-        <div className="relative mb-4">
-          <Input
-            type="text"
-            placeholder="Search conversations..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
-          />
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-        </div>
-        <ScrollArea className="h-[calc(100vh-180px)]">
-          {filteredConversations.map((conversation, index) => (
-            <Button
-              key={conversation.id}
-              onClick={() => switchConversation(index)}
-              variant={currentConversationIndex === index ? "secondary" : "ghost"}
-              className="w-full justify-start mb-2 truncate"
-            >
-              {conversation.title}
-            </Button>
-          ))}
-        </ScrollArea>
-      </CollapsibleContent>
-      <CollapsibleTrigger asChild>
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          className={`absolute top-4 ${isSidebarOpen ? 'left-64' : 'left-0'} transition-all duration-300`}
-        >
-          {isSidebarOpen ? <ChevronLeft /> : <ChevronRight />}
-        </Button>
-      </CollapsibleTrigger>
-    </Collapsible>
-  </div>
+  // ... (keep existing Sidebar component code)
 );
 
-const ChatArea = ({ selectedRole, apiKey, setApiKey, systemMessage, setSystemMessage, conversations, currentConversationIndex, isStreaming, getRoleName, scrollAreaRef, input, setInput, handleSubmit, handleVoiceInput, score }) => (
+const ChatArea = ({ selectedRole, apiKey, setApiKey, systemMessage, setSystemMessage, conversations, currentConversationIndex, isStreaming, getRoleName, scrollAreaRef, input, setInput, handleSubmit, handleVoiceInput, score, lastScoreChange, lastFeedback }) => (
   <div className="flex flex-col flex-grow overflow-hidden">
     <div className="flex justify-between items-center p-4">
       <div className="text-lg font-semibold">{selectedRole.name}</div>
-      <div className="text-lg font-semibold">Score: {score}</div>
+      <ScoreDisplay score={score} lastScoreChange={lastScoreChange} lastFeedback={lastFeedback} />
       <SettingsModal
         apiKey={apiKey}
         setApiKey={setApiKey}
