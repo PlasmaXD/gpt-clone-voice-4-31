@@ -1,27 +1,33 @@
 import React from 'react';
-import { User, UserCheck, UserMinus, UserX } from 'lucide-react';
 
 const Avatar = ({ score }) => {
-  let AvatarIcon;
-  let color;
+  let avatarSrc;
+  let altText;
 
-  if (score >= 70) {
-    AvatarIcon = UserCheck;
-    color = 'text-green-500';
+  if (score >= 80) {
+    avatarSrc = "/happy-avatar.png";
+    altText = "Happy face";
+  } else if (score >= 60) {
+    avatarSrc = "/content-avatar.png";
+    altText = "Content face";
   } else if (score >= 40) {
-    AvatarIcon = User;
-    color = 'text-blue-500';
+    avatarSrc = "/neutral-avatar.png";
+    altText = "Neutral face";
   } else if (score >= 20) {
-    AvatarIcon = UserMinus;
-    color = 'text-yellow-500';
+    avatarSrc = "/concerned-avatar.png";
+    altText = "Concerned face";
   } else {
-    AvatarIcon = UserX;
-    color = 'text-red-500';
+    avatarSrc = "/sad-avatar.png";
+    altText = "Sad face";
   }
 
   return (
     <div className="flex justify-center items-center mb-4">
-      <AvatarIcon className={`h-16 w-16 ${color}`} />
+      <img 
+        src={avatarSrc} 
+        alt={altText} 
+        className="w-16 h-16 rounded-full mx-auto object-cover"
+      />
     </div>
   );
 };
