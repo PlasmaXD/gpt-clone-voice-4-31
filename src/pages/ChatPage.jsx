@@ -60,13 +60,16 @@ const ChatPage = () => {
     setInput(transcript);
   };
 
+  const handleRoleSelection = (role) => {
+    setSelectedRole(role);
+    setSystemMessage(role.systemMessage);
+    startNewConversation();
+  };
+
   if (!selectedRole) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-chatbg">
-        <RoleSelector onSelectRole={(role) => {
-          setSelectedRole(role);
-          setSystemMessage(role.systemMessage);
-        }} />
+        <RoleSelector onSelectRole={handleRoleSelection} />
       </div>
     );
   }

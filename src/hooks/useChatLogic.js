@@ -21,7 +21,7 @@ const useSystemMessage = () => {
 const useConversations = () => {
   const [conversations, setConversations] = useState(() => {
     const savedConversations = localStorage.getItem('conversations');
-    return savedConversations ? JSON.parse(savedConversations) : [{ id: Date.now(), title: 'New Chat', messages: [] }];
+    return savedConversations ? JSON.parse(savedConversations) : [];
   });
   useEffect(() => {
     localStorage.setItem('conversations', JSON.stringify(conversations));
@@ -74,16 +74,8 @@ export const useChatLogic = () => {
   };
 
   const startNewConversation = async () => {
-    if (conversations[currentConversationIndex].messages.length > 0 && conversations[currentConversationIndex].title === 'New Chat') {
-      const newTitle = await generateTitle(conversations[currentConversationIndex].messages);
-      setConversations(prevConversations => {
-        const updatedConversations = [...prevConversations];
-        updatedConversations[currentConversationIndex].title = newTitle;
-        return [...updatedConversations, { id: Date.now(), title: 'New Chat', messages: [] }];
-      });
-    } else {
-      setConversations(prevConversations => [...prevConversations, { id: Date.now(), title: 'New Chat', messages: [] }]);
-    }
+    const newConversation = { id: Date.now(), title: 'New Chat', messages: [] };
+    setConversations(prevConversations => [...prevConversations, newConversation]);
     setCurrentConversationIndex(conversations.length);
   };
 
@@ -204,7 +196,6 @@ export const useChatLogic = () => {
         }
       }
 
-      // Generate speech for the assistant's response
       const audioUrl = await generateSpeech(assistantMessage.content);
       setConversations((prevConversations) => {
         const updatedConversations = [...prevConversations];
@@ -213,7 +204,6 @@ export const useChatLogic = () => {
         return updatedConversations;
       });
 
-      // Generate title after the first message exchange
       if (conversations[currentConversationIndex].title === 'New Chat') {
         const newTitle = await generateTitle([userMessage, assistantMessage]);
         setConversations((prevConversations) => {
