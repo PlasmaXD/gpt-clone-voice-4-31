@@ -1,7 +1,7 @@
 import React from 'react';
 import { User, UserCheck, UserMinus, UserX } from 'lucide-react';
 
-const Avatar = ({ score, role }) => {
+const Avatar = ({ score }) => {
   let AvatarIcon;
   let color;
 
@@ -20,9 +20,8 @@ const Avatar = ({ score, role }) => {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center mb-4">
+    <div className="flex justify-center items-center mb-4">
       <AvatarIcon className={`h-16 w-16 ${color}`} />
-      <div className="mt-2 text-sm font-medium">{role}</div>
     </div>
   );
 };
