@@ -132,6 +132,9 @@ const ChatPage = () => {
               <div className={`inline-block p-3 rounded-lg shadow-md ${
                 message.role === 'user' ? 'bg-usermsg text-white' : 'bg-assistantmsg text-gray-800'
               }`}>
+                <div className="font-bold mb-1">
+                  {message.role === 'user' ? 'ユーザー' : 'ChatGPT'}
+                </div>
                 <ReactMarkdown
                   className="prose max-w-none dark:prose-invert"
                   components={{
