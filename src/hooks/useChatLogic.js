@@ -12,13 +12,15 @@ const defaultRole = {
   assistantPrompts: ['How can I help you today?']
 };
 
+const getStoredItem = (key, defaultValue) => {
+  const storedValue = localStorage.getItem(key);
+  return storedValue ? JSON.parse(storedValue) : defaultValue;
+};
+
 export const useChatLogic = () => {
   const [apiKey, setApiKey] = useState(() => localStorage.getItem('openai_api_key') || '');
   const [systemMessage, setSystemMessage] = useState(() => localStorage.getItem('system_message') || 'You are a helpful assistant.');
-  const [conversations, setConversations] = useState(() => {
-    const savedConversations = localStorage.getItem('conversations');
-    return savedConversations ? JSON.parse(savedConversations) : [];
-  });
+  const [conversations, setConversations] = useState(() => getStoredItem('conversations', []));
   const [currentConversationIndex, setCurrentConversationIndex] = useState(0);
   const [input, setInput] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
@@ -34,7 +36,14 @@ export const useChatLogic = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    localStorage.setItem('conversations', JSON.stringify(conversations));
+    localStorage.setItem('conversations', JSON.stringify(conversations.map(conv => ({
+      ...conv,
+      messages: conv.messages.map(msg => ({
+        role: msg.role,
+        content: msg.content,
+        audioUrl: msg.audioUrl
+      }))
+    }))));
   }, [conversations]);
 
   const startNewConversation = (role = null) => {
@@ -64,9 +73,7 @@ export const useChatLogic = () => {
     }
   };
 
-  const toggleSidebar = () => {
-    setIsSidebarOpen(prev => !prev);
-  };
+  const toggleSidebar = () => setIsSidebarOpen(prev => !prev);
 
   const handleScriptUpload = (uploadedScript) => {
     setScript(uploadedScript);
@@ -122,29 +129,6 @@ export const useChatLogic = () => {
 
       const data = await response.json();
       const assistantMessage = { role: 'assistant', content: data.choices[0].message.content };
-
-      if (selectedRole && selectedRole.userRole === '先生') {
-        const modelAnswerResponse = await fetch('https://api.openai.com/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${apiKey}`
-          },
-          body: JSON.stringify({
-            model: 'gpt-3.5-turbo',
-            messages: [
-              { role: 'system', content: 'You are an expert in the subject. Provide a model answer to the student\'s question.' },
-              userMessage,
-              { role: 'assistant', content: 'Here\'s a model answer to the student\'s question:' }
-            ]
-          })
-        });
-
-        if (modelAnswerResponse.ok) {
-          const modelAnswerData = await modelAnswerResponse.json();
-          assistantMessage.modelAnswer = modelAnswerData.choices[0].message.content;
-        }
-      }
 
       setConversations(prevConversations => {
         const updatedConversations = [...prevConversations];
@@ -205,30 +189,9 @@ export const useChatLogic = () => {
   };
 
   return {
-    apiKey,
-    setApiKey,
-    systemMessage,
-    setSystemMessage,
-    conversations,
-    currentConversationIndex,
-    input,
-    setInput,
-    isStreaming,
-    isSidebarOpen,
-    searchQuery,
-    setSearchQuery,
-    selectedRole,
-    setSelectedRole,
-    score,
-    lastScoreChange,
-    lastFeedback,
-    startNewConversation,
-    switchConversation,
-    toggleSidebar,
-    handleSubmit,
-    currentPromptIndex,
-    handleScriptUpload,
-    script,
-    currentScriptIndex
+    apiKey, setApiKey, systemMessage, setSystemMessage, conversations, currentConversationIndex,
+    input, setInput, isStreaming, isSidebarOpen, searchQuery, setSearchQuery, selectedRole,
+    setSelectedRole, score, lastScoreChange, lastFeedback, startNewConversation, switchConversation,
+    toggleSidebar, handleSubmit, currentPromptIndex, handleScriptUpload, script, currentScriptIndex
   };
 };
