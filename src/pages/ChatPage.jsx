@@ -48,8 +48,13 @@ const ChatPage = () => {
     setInput(transcript);
   };
 
+  const handleRoleSelection = (role) => {
+    setSelectedRole(role);
+    startNewConversation(role);
+  };
+
   if (!selectedRole) {
-    return <RoleSelector onSelectRole={setSelectedRole} />;
+    return <RoleSelector onSelectRole={handleRoleSelection} />;
   }
 
   return (

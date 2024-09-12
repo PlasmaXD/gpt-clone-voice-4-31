@@ -35,19 +35,30 @@ export const useChatLogic = () => {
     localStorage.setItem('conversations', JSON.stringify(conversations));
   }, [conversations]);
 
-  const startNewConversation = () => {
-    setConversations(prevConversations => [
-      ...prevConversations,
-      { title: 'New Conversation', messages: [] }
-    ]);
+  const startNewConversation = (role = null) => {
+    const newConversation = {
+      title: role ? `New ${role.name} Conversation` : 'New Conversation',
+      messages: [],
+      role: role
+    };
+    setConversations(prevConversations => [...prevConversations, newConversation]);
     setCurrentConversationIndex(conversations.length);
     setInput('');
     setCurrentPromptIndex(0);
+    if (role) {
+      setSelectedRole(role);
+      setSystemMessage(role.systemMessage);
+    }
   };
 
   const switchConversation = (index) => {
     setCurrentConversationIndex(index);
     setInput('');
+    const selectedConversation = conversations[index];
+    if (selectedConversation.role) {
+      setSelectedRole(selectedConversation.role);
+      setSystemMessage(selectedConversation.role.systemMessage);
+    }
   };
 
   const toggleSidebar = () => {
