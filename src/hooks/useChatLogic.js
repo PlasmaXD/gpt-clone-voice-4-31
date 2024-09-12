@@ -24,7 +24,7 @@ export const useChatLogic = () => {
   const [isStreaming, setIsStreaming] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedRole, setSelectedRole] = useState(defaultRole);
+  const [selectedRole, setSelectedRole] = useState(null);
   const [score, setScore] = useState(50);
   const [lastScoreChange, setLastScoreChange] = useState(0);
   const [lastFeedback, setLastFeedback] = useState('');
@@ -77,7 +77,7 @@ export const useChatLogic = () => {
         body: JSON.stringify({
           model: 'gpt-3.5-turbo',
           messages: [
-            { role: 'system', content: systemMessage },
+            { role: 'system', content: selectedRole ? selectedRole.systemMessage : systemMessage },
             ...conversations[currentConversationIndex].messages,
             userMessage
           ]
@@ -135,7 +135,9 @@ export const useChatLogic = () => {
       }
 
       // Move to the next prompt
-      setCurrentPromptIndex((prevIndex) => (prevIndex + 1) % selectedRole.assistantPrompts.length);
+      if (selectedRole && selectedRole.assistantPrompts.length > 0) {
+        setCurrentPromptIndex((prevIndex) => (prevIndex + 1) % selectedRole.assistantPrompts.length);
+      }
     } catch (error) {
       console.error('Error:', error);
       toast({

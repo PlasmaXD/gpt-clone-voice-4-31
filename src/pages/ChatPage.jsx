@@ -13,12 +13,14 @@ import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { useChatLogic } from '@/hooks/useChatLogic';
 import ScoreDisplay from '@/components/ScoreDisplay';
 import Avatar from '@/components/Avatar';
+import RoleSelector from '@/components/RoleSelector';
 
 const ChatPage = () => {
   const {
     apiKey, setApiKey, systemMessage, setSystemMessage, conversations, currentConversationIndex,
     input, setInput, isStreaming, isSidebarOpen, searchQuery, setSearchQuery, startNewConversation,
-    switchConversation, toggleSidebar, handleSubmit, score, lastScoreChange, lastFeedback
+    switchConversation, toggleSidebar, handleSubmit, score, lastScoreChange, lastFeedback,
+    selectedRole, setSelectedRole
   } = useChatLogic();
 
   const scrollAreaRef = useRef(null);
@@ -45,6 +47,10 @@ const ChatPage = () => {
   const handleVoiceInput = (transcript) => {
     setInput(transcript);
   };
+
+  if (!selectedRole) {
+    return <RoleSelector onSelectRole={setSelectedRole} />;
+  }
 
   return (
     <div className="flex h-screen bg-chatbg">
@@ -77,7 +83,7 @@ const ChatPage = () => {
                 message.role === 'user' ? 'bg-usermsg text-white' : 'bg-assistantmsg text-gray-800'
               }`}>
                 <div className="font-bold mb-1">
-                  {message.role === 'user' ? 'You' : 'AI'}
+                  {message.role === 'user' ? selectedRole.userRole : selectedRole.assistantRole}
                 </div>
                 <ReactMarkdown
                   className="prose max-w-none dark:prose-invert"
