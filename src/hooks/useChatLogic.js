@@ -3,6 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from "@/components/ui/use-toast"
 import { scoreResponse } from '@/utils/scoreUtils';
 
+const defaultRole = {
+  id: 'default',
+  name: 'Default Role',
+  systemMessage: 'You are a helpful assistant.',
+  userRole: 'User',
+  assistantRole: 'Assistant',
+  assistantPrompts: ['How can I help you today?']
+};
+
 export const useChatLogic = () => {
   const [apiKey, setApiKey] = useState(() => localStorage.getItem('openai_api_key') || '');
   const [systemMessage, setSystemMessage] = useState(() => localStorage.getItem('system_message') || 'You are a helpful assistant.');
@@ -15,7 +24,7 @@ export const useChatLogic = () => {
   const [isStreaming, setIsStreaming] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedRole, setSelectedRole] = useState(null);
+  const [selectedRole, setSelectedRole] = useState(defaultRole);
   const [score, setScore] = useState(50);
   const [lastScoreChange, setLastScoreChange] = useState(0);
   const [lastFeedback, setLastFeedback] = useState('');
