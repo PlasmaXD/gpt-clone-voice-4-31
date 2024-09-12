@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 const useLocalStorage = (key, initialValue) => {
   const [storedValue, setStoredValue] = useState(() => {
     try {
-      const item = localStorage.getItem(key);
+      const item = window.localStorage.getItem(key);
       return item ? JSON.parse(item) : initialValue;
     } catch (error) {
       console.error(error);
@@ -16,7 +16,7 @@ const useLocalStorage = (key, initialValue) => {
     try {
       const valueToStore = value instanceof Function ? value(storedValue) : value;
       setStoredValue(valueToStore);
-      localStorage.setItem(key, JSON.stringify(valueToStore));
+      window.localStorage.setItem(key, JSON.stringify(valueToStore));
     } catch (error) {
       console.error(error);
     }
@@ -46,7 +46,7 @@ export const useChatLogic = () => {
 
   const startNewConversation = useCallback(() => {
     const newConversation = { id: Date.now(), title: 'New Chat', messages: [] };
-    setConversations(prevConversations => [...prevConversations, newConversation]);
+    setConversations((prevConversations) => [...prevConversations, newConversation]);
     setCurrentConversationIndex(conversations.length);
   }, [conversations.length, setConversations]);
 
@@ -55,7 +55,7 @@ export const useChatLogic = () => {
   }, []);
 
   const toggleSidebar = useCallback(() => {
-    setIsSidebarOpen(prev => !prev);
+    setIsSidebarOpen((prev) => !prev);
   }, []);
 
   const handleSubmit = useCallback(async (e) => {
@@ -63,7 +63,7 @@ export const useChatLogic = () => {
     if (!input.trim() || !apiKey) return;
 
     const userMessage = { role: 'user', content: input };
-    setConversations(prevConversations => {
+    setConversations((prevConversations) => {
       const updatedConversations = [...prevConversations];
       updatedConversations[currentConversationIndex].messages.push(userMessage);
       return updatedConversations;
@@ -81,7 +81,7 @@ export const useChatLogic = () => {
           'Authorization': `Bearer ${apiKey}`
         },
         body: JSON.stringify({
-          model: 'gpt-4o-mini',
+          model: 'gpt-4',
           messages: [
             { role: 'system', content: systemMessage },
             ...conversations[currentConversationIndex].messages,
@@ -94,7 +94,7 @@ export const useChatLogic = () => {
       // Process the streamed response here
       // This is a simplified placeholder
       const assistantMessage = { role: 'assistant', content: 'This is a placeholder response.' };
-      setConversations(prevConversations => {
+      setConversations((prevConversations) => {
         const updatedConversations = [...prevConversations];
         updatedConversations[currentConversationIndex].messages.push(assistantMessage);
         return updatedConversations;
