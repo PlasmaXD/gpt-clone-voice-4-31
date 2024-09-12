@@ -29,8 +29,6 @@ export const useChatLogic = () => {
   const [lastScoreChange, setLastScoreChange] = useState(0);
   const [lastFeedback, setLastFeedback] = useState('');
   const [currentPromptIndex, setCurrentPromptIndex] = useState(0);
-  const [script, setScript] = useState([]);
-  const [currentScriptIndex, setCurrentScriptIndex] = useState(0);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -47,7 +45,6 @@ export const useChatLogic = () => {
     setCurrentConversationIndex(conversations.length);
     setInput('');
     setCurrentPromptIndex(0);
-    setCurrentScriptIndex(0);
     if (role) {
       setSelectedRole(role);
       setSystemMessage(role.systemMessage);
@@ -68,25 +65,11 @@ export const useChatLogic = () => {
     setIsSidebarOpen(prev => !prev);
   };
 
-  const handleScriptUpload = (uploadedScript) => {
-    setScript(uploadedScript);
-    setCurrentScriptIndex(0);
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!apiKey) return;
+    if (!input.trim() || !apiKey) return;
 
-    let userMessage;
-    if (script.length > 0 && currentScriptIndex < script.length) {
-      userMessage = { role: 'user', content: script[currentScriptIndex] };
-      setCurrentScriptIndex(prevIndex => prevIndex + 1);
-    } else if (input.trim()) {
-      userMessage = { role: 'user', content: input };
-    } else {
-      return;
-    }
-
+    const userMessage = { role: 'user', content: input };
     setConversations(prevConversations => {
       const updatedConversations = [...prevConversations];
       updatedConversations[currentConversationIndex].messages.push(userMessage);
@@ -119,6 +102,7 @@ export const useChatLogic = () => {
       const data = await response.json();
       const assistantMessage = { role: 'assistant', content: data.choices[0].message.content };
 
+      // Generate model answer if the role is a teacher
       if (selectedRole && selectedRole.userRole === '先生') {
         const modelAnswerResponse = await fetch('https://api.openai.com/v1/chat/completions', {
           method: 'POST',
@@ -148,11 +132,16 @@ export const useChatLogic = () => {
         return updatedConversations;
       });
 
+      // Score the response
       const { scoreChange, feedback } = scoreResponse(userMessage.content, assistantMessage.content);
-      setScore(prevScore => Math.max(0, Math.min(100, prevScore + scoreChange)));
+      setScore(prevScore => {
+        const newScore = Math.max(0, Math.min(100, prevScore + scoreChange));
+        return newScore;
+      });
       setLastScoreChange(scoreChange);
       setLastFeedback(feedback);
 
+      // Generate a title for the conversation if it's the first message
       if (conversations[currentConversationIndex].messages.length === 0) {
         const titleResponse = await fetch('https://api.openai.com/v1/chat/completions', {
           method: 'POST',
@@ -180,6 +169,7 @@ export const useChatLogic = () => {
         }
       }
 
+      // Move to the next prompt
       if (selectedRole && selectedRole.assistantPrompts.length > 0) {
         setCurrentPromptIndex((prevIndex) => (prevIndex + 1) % selectedRole.assistantPrompts.length);
       }
@@ -222,9 +212,6 @@ export const useChatLogic = () => {
     switchConversation,
     toggleSidebar,
     handleSubmit,
-    currentPromptIndex,
-    handleScriptUpload,
-    script,
-    currentScriptIndex
+    currentPromptIndex
   };
 };
