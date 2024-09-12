@@ -29,24 +29,26 @@ const useConversations = () => {
   return [conversations, setConversations];
 };
 
-export const useChatLogic = () => {
-  const [apiKey, setApiKey] = useApiKey();
-  const [systemMessage, setSystemMessage] = useSystemMessage();
-  const [conversations, setConversations] = useConversations();
+const useChatState = () => {
   const [currentConversationIndex, setCurrentConversationIndex] = useState(0);
   const [input, setInput] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedRole, setSelectedRole] = useState(null);
-  const navigate = useNavigate();
+  const [isSelectingRole, setIsSelectingRole] = useState(false);
+  return {
+    currentConversationIndex, setCurrentConversationIndex,
+    input, setInput,
+    isStreaming, setIsStreaming,
+    isSidebarOpen, setIsSidebarOpen,
+    searchQuery, setSearchQuery,
+    selectedRole, setSelectedRole,
+    isSelectingRole, setIsSelectingRole
+  };
+};
 
-  useEffect(() => {
-    if (!apiKey) {
-      navigate('/');
-    }
-  }, [apiKey, navigate]);
-
+const useChat = (apiKey, systemMessage, conversations, setConversations, currentConversationIndex, setIsStreaming) => {
   const generateTitle = async (messages) => {
     try {
       const concatenatedMessages = messages.map(msg => `${msg.role}: ${msg.content}`).join('\n');
@@ -73,7 +75,7 @@ export const useChatLogic = () => {
     }
   };
 
-  const startNewConversation = async () => {
+  const startNewConversation = () => {
     const newConversation = { id: Date.now(), title: 'New Chat', messages: [] };
     setConversations(prevConversations => [...prevConversations, newConversation]);
     setCurrentConversationIndex(conversations.length);
@@ -83,43 +85,7 @@ export const useChatLogic = () => {
     setCurrentConversationIndex(index);
   };
 
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
-
-  const generateSpeech = async (text) => {
-    try {
-      const response = await fetch('https://api.openai.com/v1/audio/speech', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`
-        },
-        body: JSON.stringify({
-          model: 'tts-1',
-          input: text,
-          voice: 'alloy'
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to generate speech');
-      }
-
-      const audioBlob = await response.blob();
-      return URL.createObjectURL(audioBlob);
-    } catch (error) {
-      console.error('Error generating speech:', error);
-      toast({
-        title: "Speech Generation Error",
-        description: "Failed to generate speech. Please try again.",
-        variant: "destructive",
-      });
-      return null;
-    }
-  };
-
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e, input) => {
     e.preventDefault();
     if (!input.trim()) return;
 
@@ -138,7 +104,6 @@ export const useChatLogic = () => {
       updatedConversations[currentConversationIndex].messages.push(userMessage);
       return updatedConversations;
     });
-    setInput('');
     setIsStreaming(true);
 
     try {
@@ -196,14 +161,6 @@ export const useChatLogic = () => {
         }
       }
 
-      const audioUrl = await generateSpeech(assistantMessage.content);
-      setConversations((prevConversations) => {
-        const updatedConversations = [...prevConversations];
-        const currentMessages = updatedConversations[currentConversationIndex].messages;
-        currentMessages[currentMessages.length - 1] = { ...assistantMessage, audioUrl };
-        return updatedConversations;
-      });
-
       if (conversations[currentConversationIndex].title === 'New Chat') {
         const newTitle = await generateTitle([userMessage, assistantMessage]);
         setConversations((prevConversations) => {
@@ -224,6 +181,38 @@ export const useChatLogic = () => {
     }
   };
 
+  return { startNewConversation, switchConversation, handleSubmit };
+};
+
+export const useChatLogic = () => {
+  const [apiKey, setApiKey] = useApiKey();
+  const [systemMessage, setSystemMessage] = useSystemMessage();
+  const [conversations, setConversations] = useConversations();
+  const {
+    currentConversationIndex, setCurrentConversationIndex,
+    input, setInput,
+    isStreaming, setIsStreaming,
+    isSidebarOpen, setIsSidebarOpen,
+    searchQuery, setSearchQuery,
+    selectedRole, setSelectedRole,
+    isSelectingRole, setIsSelectingRole
+  } = useChatState();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!apiKey) {
+      navigate('/');
+    }
+  }, [apiKey, navigate]);
+
+  const { startNewConversation, switchConversation, handleSubmit: submitChat } = useChat(
+    apiKey, systemMessage, conversations, setConversations, currentConversationIndex, setIsStreaming
+  );
+
+  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
+
+  const handleSubmit = (e) => submitChat(e, input);
+
   return {
     apiKey,
     setApiKey,
@@ -239,6 +228,8 @@ export const useChatLogic = () => {
     setSearchQuery,
     selectedRole,
     setSelectedRole,
+    isSelectingRole,
+    setIsSelectingRole,
     startNewConversation,
     switchConversation,
     toggleSidebar,
