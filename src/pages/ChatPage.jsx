@@ -19,7 +19,7 @@ const ChatPage = () => {
     apiKey, setApiKey, systemMessage, setSystemMessage, conversations, currentConversationIndex,
     input, setInput, isStreaming, isSidebarOpen, searchQuery, setSearchQuery, startNewConversation,
     switchConversation, toggleSidebar, handleSubmit, selectedRole, setSelectedRole, score,
-    lastScoreChange, lastFeedback, getNextAssistantPrompt
+    lastScoreChange, lastFeedback
   } = useChatLogic();
 
   const scrollAreaRef = useRef(null);
@@ -96,13 +96,12 @@ const ChatPage = () => {
         score={score}
         lastScoreChange={lastScoreChange}
         lastFeedback={lastFeedback}
-        getNextAssistantPrompt={getNextAssistantPrompt}
       />
     </div>
   );
 };
 
-const ChatArea = ({ selectedRole, apiKey, setApiKey, systemMessage, setSystemMessage, conversations, currentConversationIndex, isStreaming, getRoleName, scrollAreaRef, input, setInput, handleSubmit, handleVoiceInput, score, lastScoreChange, lastFeedback, getNextAssistantPrompt }) => (
+const ChatArea = ({ selectedRole, apiKey, setApiKey, systemMessage, setSystemMessage, conversations, currentConversationIndex, isStreaming, getRoleName, scrollAreaRef, input, setInput, handleSubmit, handleVoiceInput, score, lastScoreChange, lastFeedback }) => (
   <div className="flex flex-col flex-grow overflow-hidden">
     <div className="flex justify-between items-center p-4">
       <div className="text-lg font-semibold">{selectedRole.name}</div>
@@ -165,7 +164,7 @@ const ChatArea = ({ selectedRole, apiKey, setApiKey, systemMessage, setSystemMes
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder={getNextAssistantPrompt() || "Type your message..."}
+          placeholder="Type your message..."
           className="flex-grow"
           disabled={isStreaming}
         />
