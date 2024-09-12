@@ -17,6 +17,7 @@ import RoleSelector from '@/components/RoleSelector';
 import ModelAnswer from '@/components/ModelAnswer';
 
 const ReactLive2d = lazy(() => import('react-live2d'));
+
 const ChatPage = () => {
   const {
     apiKey, setApiKey, systemMessage, setSystemMessage, conversations, currentConversationIndex,
@@ -130,19 +131,6 @@ const ChatPage = () => {
               )}
             </div>
           ))}
-              <Suspense fallback={<div>Loading Live2D...</div>}>
-            <ReactLive2d
-              width={500}
-              height={750}
-              botton="5px"
-              left="470px"
-              ModelList={['Haru']}
-              TouchDefault={['']}
-              TouchBody={['']}
-              TouchHead={['']}
-              PathFull='http://publicjs.supmiao.com/Resources/'
-              />
-              </Suspense>
         </ScrollArea>
         <div className="p-4 bg-white border-t shadow-md">
           <form onSubmit={handleSubmit} className="flex gap-2">
@@ -161,6 +149,19 @@ const ChatPage = () => {
           </form>
         </div>
       </div>
+      <Suspense fallback={<div>Loading Live2D...</div>}>
+        <ReactLive2d
+          width={500}
+          height={750}
+          bottom="5px"
+          left="470px"
+          ModelList={['Haru']}
+          TouchDefault={['']}
+          TouchBody={['']}
+          TouchHead={['']}
+          PathFull='http://publicjs.supmiao.com/Resources/'
+        />
+      </Suspense>
     </div>
   );
 };
