@@ -3,15 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from "@/components/ui/use-toast"
 import { scoreResponse } from '@/utils/scoreUtils';
 
-const defaultRole = {
-  id: 'default',
-  name: 'Default Role',
-  systemMessage: 'You are a helpful assistant.',
-  userRole: 'User',
-  assistantRole: 'Assistant',
-  assistantPrompts: ['How can I help you today?']
-};
-
 export const useChatLogic = () => {
   const [apiKey, setApiKey] = useState(() => localStorage.getItem('openai_api_key') || '');
   const [systemMessage, setSystemMessage] = useState(() => localStorage.getItem('system_message') || 'You are a helpful assistant.');
@@ -29,6 +20,7 @@ export const useChatLogic = () => {
   const [lastScoreChange, setLastScoreChange] = useState(0);
   const [lastFeedback, setLastFeedback] = useState('');
   const [currentPromptIndex, setCurrentPromptIndex] = useState(0);
+  const [pdfContent, setPdfContent] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -65,9 +57,13 @@ export const useChatLogic = () => {
     setIsSidebarOpen(prev => !prev);
   };
 
+  const handlePDFLoaded = (content) => {
+    setPdfContent(content);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!input.trim() || !apiKey) return;
+    if (!input.trim() && !apiKey) return;
 
     const userMessage = { role: 'user', content: input };
     setConversations(prevConversations => {
@@ -108,7 +104,6 @@ export const useChatLogic = () => {
         return updatedConversations;
       });
 
-      // Score the response
       const { scoreChange, feedback } = scoreResponse(userMessage.content, assistantMessage.content);
       setScore(prevScore => {
         const newScore = Math.max(0, Math.min(100, prevScore + scoreChange));
@@ -117,7 +112,6 @@ export const useChatLogic = () => {
       setLastScoreChange(scoreChange);
       setLastFeedback(feedback);
 
-      // Generate a title for the conversation if it's the first message
       if (conversations[currentConversationIndex].messages.length === 0) {
         const titleResponse = await fetch('https://api.openai.com/v1/chat/completions', {
           method: 'POST',
@@ -145,7 +139,6 @@ export const useChatLogic = () => {
         }
       }
 
-      // Move to the next prompt
       if (selectedRole && selectedRole.assistantPrompts.length > 0) {
         setCurrentPromptIndex((prevIndex) => (prevIndex + 1) % selectedRole.assistantPrompts.length);
       }
@@ -188,6 +181,7 @@ export const useChatLogic = () => {
     switchConversation,
     toggleSidebar,
     handleSubmit,
-    currentPromptIndex
+    currentPromptIndex,
+    handlePDFLoaded
   };
 };

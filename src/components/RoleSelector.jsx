@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import PDFReader from './PDFReader';
 
 const roles = [
   {
@@ -31,31 +32,34 @@ const roles = [
       "セール品の中でおすすめの商品はありますか？学生なので予算は抑えめでお願いします。"
     ]
   },
-  {
-    id: 'doctor_patient',
-    name: '医者と患者',
-    systemMessage: 'あなたは30代の患者として振る舞います。体調不良や症状について医者に相談し、適切な診断や治療法を求めてください。',
-    userRole: '医者',
-    assistantRole: '30代の患者',
-    assistantPrompts: [
-      "先生、最近疲れやすくて、夜もよく眠れないんです。これって何か病気の可能性がありますか？",
-      "1週間ほど前から喉が痛くて、熱もあります。風邪でしょうか、それとも別の病気の可能性もありますか？",
-      "健康診断の結果で血圧が高めと言われました。生活習慣を改善するためにどんなことに気をつければいいですか？",
-      "アレルギー検査を受けたいのですが、どんな種類の検査がありますか？また、検査の流れを教えていただけますか？",
-      "最近、運動を始めようと思っているのですが、30代でも安全に始められる運動や、注意点などありますか？"
-    ]
-  }
 ];
 
-const RoleSelector = ({ onSelectRole }) => {
-  return (
-    <div className="w-full max-w-md mx-auto">
+const RoleSelector = ({ onSelectRole, onPDFLoaded }) => {
+  const [pdfContent, setPdfContent] = useState('');
+
+  const handlePDFLoaded = (content) => {
+    setPdfContent(content);
+    onPDFLoaded(content);
+  };
+
+  const handleRoleSelect = (role) => {
+    const updatedRole = {
+      ...role,
+      systemMessage: pdfContent ? ${role.systemMessage} 追加情報: ${pdfContent.substring(0, 500)}... : role.systemMessage
+    };
+    onSelectRole(updatedRole);
+  };
+return (
+    <div className="w-full max-w-4xl mx-auto p-4">
       <h2 className="text-2xl font-bold mb-4">ロールを選択してください</h2>
+      <div className="mb-6">
+        <PDFReader onPDFLoaded={handlePDFLoaded} />
+      </div>
       <ScrollArea className="h-60">
         {roles.map((role) => (
           <Button
             key={role.id}
-            onClick={() => onSelectRole(role)}
+            onClick={() => handleRoleSelect(role)}
             className="w-full mb-2 justify-start"
             variant="outline"
           >
@@ -67,4 +71,4 @@ const RoleSelector = ({ onSelectRole }) => {
   );
 };
 
-export default RoleSelector;
+export default RoleSelector;  
