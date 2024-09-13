@@ -45,7 +45,7 @@ const RoleSelector = ({ onSelectRole, onPDFLoaded }) => {
   const handleRoleSelect = (role) => {
     const updatedRole = {
       ...role,
-      systemMessage: pdfContent ? ${role.systemMessage} 追加情報: ${pdfContent.substring(0, 500)}... : role.systemMessage
+      systemMessage: pdfContent ? `${role.systemMessage} 追加情報: ${pdfContent.substring(0, 500)}...`  : role.systemMessage
     };
     onSelectRole(updatedRole);
   };
