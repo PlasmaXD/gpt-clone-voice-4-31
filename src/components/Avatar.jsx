@@ -5,7 +5,7 @@ const Avatar = ({ score }) => {
   let AvatarIcon;
   let color;
 
-  if (score >= 70) {
+  if (score >= 60) {
     AvatarIcon = "./pic/VerySmile.png";
   } else if (score >= 40) {
     AvatarIcon = "./pic/Smile.png";
