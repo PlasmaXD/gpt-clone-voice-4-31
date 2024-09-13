@@ -131,7 +131,7 @@ const ChatPage = () => {
               width={500}
               height={750}
               botton="5px"
-              left="470px"
+              left="410px"
               ModelList={['Haru']}
               TouchDefault={['']}
               TouchBody={['','']}
